@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Getting back into blogging with Hugo! on Andy Rea&#39;s Blog</title>
+    <title>Andy Rea on Andy Rea&#39;s Blog</title>
     <link>https://reaandrew.github.io/</link>
-    <description>Recent content in Getting back into blogging with Hugo! on Andy Rea&#39;s Blog</description>
+    <description>Recent content in Andy Rea on Andy Rea&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sun, 09 Jun 2019 08:50:11 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 09 Jun 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>My First Post</title>
+      <title>Getting back into blogging with Hugo!</title>
       <link>https://reaandrew.github.io/posts/my-first-post/</link>
-      <pubDate>Sun, 09 Jun 2019 08:50:11 +0000</pubDate>
+      <pubDate>Sun, 09 Jun 2019 00:00:00 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/my-first-post/</guid>
-      <description> My First Post </description>
+      <description>This is a first blog post whilst I get this site back up and running using Hugo.
+The deployment option which I am using is the one where you use one github repository to store all the source and raw material and another github repository for the generated artefacts which are then published on github pages. There other ways of doing this (e.g. using a branch), which I tried, but I settled with the two repos approach.</description>
     </item>
     
   </channel>

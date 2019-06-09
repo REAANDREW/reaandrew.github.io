@@ -12,7 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
   
-    Getting back into blogging with Hugo!
+    Andy Rea
   
  | Andy Rea&#39;s Blog</title>
 
@@ -36,7 +36,6 @@ https://github.com/alex-shpak/hugo-book
 <body>
   <input type="checkbox" style="display: none" id="menu-control" />
   <main class="flex container">
-
     <aside class="book-menu fixed">
       <nav>
 <h2 class="book-brand">
@@ -48,16 +47,37 @@ https://github.com/alex-shpak/hugo-book
     
 
   
+
+
+
+
+
+ 
   
-
-
-
-
-
+    
 
   <ul>
+    
+    
+    <li>
+      
+
+  <a href="/posts/my-first-post/" >
+    
   
+    
+    Getting back into blogging with Hugo!
+  
+
+  </a>
+
+
+    </li>
+    
   </ul>
+
+
+  
 
 
 
@@ -70,6 +90,18 @@ https://github.com/alex-shpak/hugo-book
 
 
 </nav>
+
+
+  
+<script>
+(function() {
+  var menu = document.querySelector('aside.book-menu nav')
+  addEventListener('beforeunload', function(event) {
+    localStorage.setItem('menu.scrollTop', menu.scrollTop)
+  });
+  menu.scrollTop = localStorage.getItem('menu.scrollTop')
+})()
+</script>
 
 
 
@@ -82,74 +114,36 @@ https://github.com/alex-shpak/hugo-book
   </label>
   <strong>
   
-    Getting back into blogging with Hugo!
+    Andy Rea
   
 </strong>
 </header>
 
       
-<article class="markdown">
-
-<h1 id="getting-back-into-blogging-with-hugo">Getting back into blogging with Hugo!</h1>
-
-<p>This is a first blog post whilst I get this site back up and running using Hugo.</p>
-
-<p>The deployment option which I am using is the one where you use one github repository to store all the source and raw material and another github repository for the generated artefacts which are then published on github pages.  There other ways of doing this (e.g. using a branch), which I tried, but I settled with the two repos approach.</p>
-
-<p>I am using Circle CI for the Hugo generation and git publishing workflow (the config is below) and github pages for the hosting of the blog.  The theme of the site is called <code>book</code> and I chose it because of its simplicity and focus it gives to the content.  For the editing I am using Vim with several plugins including <code>Goyo</code> which gives me a distraction free view whilst I write.  I got the original version of this circleci config.yml from <a href="https://willschenk.com/articles/2018/automating_hugo_with_circleci/">https://willschenk.com/articles/2018/automating_hugo_with_circleci/</a> but I have altered it to use submodules and separated some of the comands to give them some context.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">version: <span style="color:#ae81ff">2</span>
-jobs:
-  build:
-    docker:
-      - image: cibuilds/hugo:latest
-    working_directory: ~/hugo
-    environment:
-      HUGO_BUILD_DIR: ~/hugo/public
-      REPO: git@github.com:reaandrew/reaandrew.github.io.git
-    steps:
-      - run: apk update <span style="color:#75715e">&amp;&amp;</span> apk add git
-      - checkout
-      - run: git submodule sync <span style="color:#75715e">&amp;&amp;</span> git submodule update --init
-      - run: 
-          name: <span style="color:#e6db74">&#34;Clean refresh of the sub module&#34;</span>
-          command: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">            git rm -f $HUGO_BUILD_DIR &gt; /dev/null 2&gt;&amp;1 || :</span>
-            rm -rf .git/modules/$HUGO_BUILD_DIR
-      - run: git submodule add -b master $REPO $HUGO_BUILD_DIR
-      - run: HUGO_ENV=production hugo -t book -v -d $HUGO_BUILD_DIR
-      - run: 
-          name: <span style="color:#e6db74">&#34;Set the git identity&#34;</span>
-          command: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">            git config --global user.email &#34;email@andrewrea.co.uk&#34;</span>
-            git config --global user.name <span style="color:#e6db74">&#34;CircleCI&#34;</span>
-      - run: 
-          name: <span style="color:#e6db74">&#34;Commit the changes&#34;</span>
-          command: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">            cd $HUGO_BUILD_DIR</span>
-            git add --all
-            git commit -m <span style="color:#e6db74">&#34;rebuilding site `date`&#34;</span>
-            git push</code></pre></div></article>
-
+  
+  
+  
+  <article class="markdown">
+    <h2>
+      <a href="/posts/my-first-post/">Getting back into blogging with Hugo!</a>
+    </h2>
+    <h5>
+      <strong>June 9, 2019</strong>
+    </h5>
+    <p>This is a first blog post whilst I get this site back up and running using Hugo.
+The deployment option which I am using is the one where you use one github repository to store all the source and raw material and another github repository for the generated artefacts which are then published on github pages. There other ways of doing this (e.g. using a branch), which I tried, but I settled with the two repos approach.
+        <a href="/posts/my-first-post/">...</a>
       
+    </p>
+  </article>
+  
+  
+
 
       
     </div>
-
-    
-  
-
-  <aside class="book-toc level-6 fixed">
-    <nav id="TableOfContents">
-<ul>
-<li><a href="#getting-back-into-blogging-with-hugo">Getting back into blogging with Hugo!</a></li>
-</ul>
-</nav>
-  </aside>
-
-
-
   </main>
-  
+
   
   
 </body>
