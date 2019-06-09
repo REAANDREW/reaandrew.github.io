@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  
+    
+    Creating a Simple Stress Test Tool in Go - Requirements
+  
+ | Andy Rea&#39;s Blog</title>
+
+
+
+<link rel="stylesheet" href="/book.min.b7d5ee4f671b06dde5fd61ab409a54048ba7759e99fed39ac32a7be45d4d92cd.css">
+
+
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+
+
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body>
+  <input type="checkbox" style="display: none" id="menu-control" />
+  <main class="flex container">
+    <aside class="book-menu fixed">
+      <nav>
+<h2 class="book-brand">
+  <a href="https://reaandrew.github.io/">Andy Rea&#39;s Blog</a>
+</h2>
+
+
+
+    
+
+  
+
+
+
+
+
+ 
+  
+    
+
+  <ul>
+    
+    
+    <li>
+      
+
+  <a href="/posts/creating-a-simple-stress-test-tool-in-go/"  class="active">
+    
+  
+    
+    Creating a Simple Stress Test Tool in Go - Requirements
+  
+
+  </a>
+
+
+    </li>
+    
+    <li>
+      
+
+  <a href="/posts/getting-back-into-blogging-with-hugo/" >
+    
+  
+    
+    Getting back into blogging with Hugo!
+  
+
+  </a>
+
+
+    </li>
+    
+  </ul>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+  
+<script>
+(function() {
+  var menu = document.querySelector('aside.book-menu nav')
+  addEventListener('beforeunload', function(event) {
+    localStorage.setItem('menu.scrollTop', menu.scrollTop)
+  });
+  menu.scrollTop = localStorage.getItem('menu.scrollTop')
+})()
+</script>
+
+
+
+    </aside>
+
+    <div class="book-page">
+      <header class="align-center justify-between book-header">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" alt="Menu" />
+  </label>
+  <strong>
+  
+    
+    Creating a Simple Stress Test Tool in Go - Requirements
+  
+</strong>
+</header>
+
+      
+
+<header class="markdown">
+  <h1>Creating a Simple Stress Test Tool in Go - Requirements</h1>
+  <h5>
+    <strong>June 9, 2019</strong>
+  </h5>
+</header>
+<article class="markdown">
+
+<h2 id="introduction">Introduction</h2>
+
+<p>One of the tools that has really stuck in mind over the years is the siege stess test tool (TODO: put a link to the tool).  It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&hellip; and it would begin testing those urls with really clear output.  At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&hellip;  One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</p>
+
+<p>To create a simple clone of some of siege functionality I want to create an application with the following requirements, each being a separate blog post in this mini series:</p>
+
+<p>The application:</p>
+
+<ul>
+<li>must be continually built and published to github releases supporting Windows, Linux and Mac.</li>
+<li>must be a CLI.</li>
+<li>must accept a file arguement of urls to test.</li>
+<li>must only support the HTTP GET.</li>
+<li>must accept an argument to read the urls sequentially or at random.</li>
+<li>must accept an argument to configure the number of simulated users.</li>
+<li>must accept an argument to specify the number of iterations.</li>
+<li>must output the same statistics as siege into standard out after the test run:
+
+<ul>
+<li>Transactions (The total number of requests made)</li>
+<li>Availability (1 - (Number of errors / Transactions))</li>
+<li>Elapsed Time (The total time the test took to run)</li>
+<li>Data Transferred (The total number of bytes received from the server)</li>
+<li>Response Time (The average response time in ms)</li>
+<li>Transaction rate (The number of requests per second)</li>
+<li>Concurrency (The number of simulataneous connections)</li>
+<li>Throughput (The average number of bytes of bytes received from the server per second)</li>
+<li>Successful transactions</li>
+<li>Failed transactions</li>
+<li>Longest transaction</li>
+<li>Shortest transaction</li>
+</ul></li>
+</ul>
+</article>
+
+      
+    </div>
+  </main>
+
+  
+  
+</body>
+
+</html>

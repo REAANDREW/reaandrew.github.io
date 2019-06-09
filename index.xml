@@ -8,15 +8,24 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sun, 09 Jun 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 09 Jun 2019 13:43:46 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Creating a Simple Stress Test Tool in Go - Requirements</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</link>
+      <pubDate>Sun, 09 Jun 2019 13:43:46 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</guid>
+      <description>Introduction One of the tools that has really stuck in mind over the years is the siege stess test tool (TODO: put a link to the tool). It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
+    </item>
+    
+    <item>
       <title>Getting back into blogging with Hugo!</title>
       <link>https://reaandrew.github.io/posts/getting-back-into-blogging-with-hugo/</link>
-      <pubDate>Sun, 09 Jun 2019 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/getting-back-into-blogging-with-hugo/</guid>
       <description>This is a first blog post whilst I get this site back up and running using Hugo.
