@@ -19,8 +19,9 @@
       <pubDate>Sun, 09 Jun 2019 14:43:46 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-1/</guid>
-      <description>This is part of a mini series of blog posts building a simple stress tool in Go. The contents of the series can be found here.
-Must be continually built and published to github releases supporting Windows, Linux and Mac The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively. I will name the repository and the project maul.</description>
+      <description>Must be continually built and published to github releases supporting Windows, Linux and Mac The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively. I will name the repository and the project maul. https://github.com/reaandrew/maul.git
+To begin with I will create a simple hello world application to flush the pipeline with circleci.
+package main import &amp;#34;fmt&amp;#34; func main() { fmt.</description>
     </item>
     
     <item>
