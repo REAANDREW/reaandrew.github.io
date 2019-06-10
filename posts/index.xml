@@ -8,10 +8,20 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sun, 09 Jun 2019 13:43:46 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 09 Jun 2019 14:43:46 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 1</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-1/</link>
+      <pubDate>Sun, 09 Jun 2019 14:43:46 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-1/</guid>
+      <description>This is part of a mini series of blog posts building a simple stress tool in Go. The contents of the series can be found here.
+Must be continually built and published to github releases supporting Windows, Linux and Mac The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively. I will name the repository and the project maul.</description>
+    </item>
     
     <item>
       <title>Creating a Simple Stress Test Tool in Go - Requirements</title>
@@ -19,7 +29,7 @@
       <pubDate>Sun, 09 Jun 2019 13:43:46 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</guid>
-      <description>Introduction One of the tools that has really stuck in mind over the years is the siege stess test tool (TODO: put a link to the tool). It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
+      <description>Introduction One of the tools that has really stuck in my mind over the years is the siege stress test tool https://github.com/JoeDog/siege. It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
     </item>
     
     <item>
