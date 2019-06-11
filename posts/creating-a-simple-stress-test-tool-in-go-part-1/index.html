@@ -161,7 +161,7 @@ https://github.com/alex-shpak/hugo-book
 
 <h2 id="must-be-continually-built-and-published-to-github-releases-supporting-windows-linux-and-mac">Must be continually built and published to github releases supporting Windows, Linux and Mac</h2>
 
-<p>The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively.  I will name the repository and the project <code>maul</code>.  <a href="https://github.com/reaandrew/maul.git">https://github.com/reaandrew/maul.git</a></p>
+<p>The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively.  I will name the repository and the project <code>surge</code>.  <a href="https://github.com/reaandrew/surge.git">https://github.com/reaandrew/surge.git</a></p>
 
 <p>To begin with I will create a simple hello world application to flush the pipeline with circleci.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
@@ -189,7 +189,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:<span style="color:#ae81ff">1.12</span>
-    working_directory: /go/src/github.com/reaandrew/maul
+    working_directory: /go/src/github.com/reaandrew/surge
     steps:
       - checkout
       - run: go get -v -t -d ./...
@@ -214,7 +214,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:<span style="color:#ae81ff">1.12</span>
-    working_directory: /go/src/github.com/reaandrew/maul
+    working_directory: /go/src/github.com/reaandrew/surge
     steps:
       - checkout
       - run: go get -u github.com/tcnksm/ghr
