@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  
+    
+    Creating a Simple Stress Test Tool in Go Part 2
+  
+ | Andy Rea&#39;s Blog</title>
+
+
+
+<link rel="stylesheet" href="/book.min.5c2eff05fce3cf9df920de615372d564cca260613bfb16aec0338ab7ebaf605f.css">
+
+
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+
+
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body>
+  <input type="checkbox" style="display: none" id="menu-control" />
+  <main class="flex container">
+    <aside class="book-menu fixed">
+      <nav>
+<h2 class="book-brand">
+  <a href="https://reaandrew.github.io/">Andy Rea&#39;s Blog</a>
+</h2>
+
+
+
+    
+
+  
+
+
+
+
+
+ 
+  
+    
+
+  <ul>
+    
+    
+    <li>
+      
+
+  <a href="/posts/creating-a-simple-stress-test-tool-in-go-part-2/"  class="active">
+    
+  
+    
+    Creating a Simple Stress Test Tool in Go Part 2
+  
+
+  </a>
+
+
+    </li>
+    
+    <li>
+      
+
+  <a href="/posts/creating-a-simple-stress-test-tool-in-go-part-1/" >
+    
+  
+    
+    Creating a Simple Stress Test Tool in Go Part 1
+  
+
+  </a>
+
+
+    </li>
+    
+    <li>
+      
+
+  <a href="/posts/creating-a-simple-stress-test-tool-in-go/" >
+    
+  
+    
+    Creating a Simple Stress Test Tool in Go - Requirements
+  
+
+  </a>
+
+
+    </li>
+    
+    <li>
+      
+
+  <a href="/posts/getting-back-into-blogging-with-hugo/" >
+    
+  
+    
+    Getting back into blogging with Hugo!
+  
+
+  </a>
+
+
+    </li>
+    
+  </ul>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+  
+<script>
+(function() {
+  var menu = document.querySelector('aside.book-menu nav')
+  addEventListener('beforeunload', function(event) {
+    localStorage.setItem('menu.scrollTop', menu.scrollTop)
+  });
+  menu.scrollTop = localStorage.getItem('menu.scrollTop')
+})()
+</script>
+
+
+
+    </aside>
+
+    <div class="book-page">
+      <header class="align-center justify-between book-header">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" alt="Menu" />
+  </label>
+  <strong>
+  
+    
+    Creating a Simple Stress Test Tool in Go Part 2
+  
+</strong>
+</header>
+
+      
+
+<header class="markdown">
+  <h1>Creating a Simple Stress Test Tool in Go Part 2</h1>
+  <h5>
+    <strong>June 10, 2019</strong>
+  </h5>
+</header>
+<article class="markdown">
+
+<h2 id="must-be-a-cli">Must be a CLI</h2>
+
+<p>I chose the Cobra <a href="https://github.com/spf13/cobra">https://github.com/spf13/cobra</a> package for the CLI since it is used by a lot of popular applications and it made things a lot simpler than working with the raw command line arguments, including testing etc&hellip;  In my opinion this is one of those decisions better made early so more focus can be given to the actual requirements.  To get started I literally installed the generator and package with two separate <code>go gets</code> as per the documentation which created a default root command which I could build on.  The generated code also went into its own package called <code>cmd</code> which was useful.</p>
+
+<p>In order to test this with a package name for test i.e. <code>cmd_test</code> rather than <code>cmd</code>, I changed the visibility of the RootCmd which was generated.  I also reviewed how best to test a cobra app and copied a couple of methods into this app as they were not exported by the Cobra package.  I added a simple test to comfirm that the program works by asserting &ldquo;Hello, World!&rdquo; was written to standard out.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">cmd_test</span>
+
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;bytes&#34;</span>
+  <span style="color:#e6db74">&#34;testing&#34;</span>
+
+  <span style="color:#e6db74">&#34;github.com/reaandrew/surge/cmd&#34;</span>
+  <span style="color:#e6db74">&#34;github.com/spf13/cobra&#34;</span>
+  <span style="color:#e6db74">&#34;github.com/stretchr/testify/assert&#34;</span>
+
+    )
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">root</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">output</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) {
+  <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">executeCommandC</span>(<span style="color:#a6e22e">root</span>, <span style="color:#a6e22e">args</span><span style="color:#f92672">...</span>)
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span>
+
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">executeCommandC</span>(<span style="color:#a6e22e">root</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">output</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) {
+  <span style="color:#a6e22e">buf</span> <span style="color:#f92672">:=</span> new(<span style="color:#a6e22e">bytes</span>.<span style="color:#a6e22e">Buffer</span>)
+  <span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">SetOut</span>(<span style="color:#a6e22e">buf</span>)
+  <span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">SetErr</span>(<span style="color:#a6e22e">buf</span>)
+  <span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">SetArgs</span>(<span style="color:#a6e22e">args</span>)
+
+  <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">root</span>.<span style="color:#a6e22e">ExecuteC</span>()
+
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">buf</span>.<span style="color:#a6e22e">String</span>(), <span style="color:#a6e22e">err</span>
+
+
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestHelloWorld</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+  <span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>)
+
+  <span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>, <span style="color:#e6db74">&#34;Unexpected error: %v&#34;</span>, <span style="color:#a6e22e">err</span>)
+  <span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#e6db74">&#34;Hello, World!\n&#34;</span>, <span style="color:#a6e22e">output</span>)
+
+}</code></pre></div>
+<p>I updated the version of the application into the circle ci config to v0.2.0 and lso had to add one extra line to get the Cobra app to cross compile for windows (<code>GOOS=windows go get -u github.com/spf13/cobra</code> <a href="https://github.com/spf13/cobra/issues/250">https://github.com/spf13/cobra/issues/250</a>)</p>
+
+<p><img src="/images/v0.2.0-github-releases.png" alt="/images/v0.2.0-github-releases.png" /></p>
+</article>
+
+      
+    </div>
+  </main>
+
+  
+  
+</body>
+
+</html>

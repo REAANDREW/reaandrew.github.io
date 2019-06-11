@@ -8,10 +8,19 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sun, 09 Jun 2019 14:43:46 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 10 Jun 2019 20:22:20 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 2</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/</link>
+      <pubDate>Mon, 10 Jun 2019 20:22:20 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/</guid>
+      <description>Must be a CLI I chose the Cobra https://github.com/spf13/cobra package for the CLI since it is used by a lot of popular applications and it made things a lot simpler than working with the raw command line arguments, including testing etc&amp;hellip; In my opinion this is one of those decisions better made early so more focus can be given to the actual requirements. To get started I literally installed the generator and package with two separate go gets as per the documentation which created a default root command which I could build on.</description>
+    </item>
     
     <item>
       <title>Creating a Simple Stress Test Tool in Go Part 1</title>
