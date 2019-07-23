@@ -1,178 +1,24 @@
 <!DOCTYPE html>
-
-
-
-
-
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>
-  
-    
-    Creating a Simple Stress Test Tool in Go Part 1
-  
- | Andy Rea&#39;s Blog</title>
-
-
-
-<link rel="stylesheet" href="/book.min.5c2eff05fce3cf9df920de615372d564cca260613bfb16aec0338ab7ebaf605f.css">
-
-
-<link rel="icon" href="/favicon.png" type="image/x-icon">
-
-
-<!--
-Made with Book Theme
-https://github.com/alex-shpak/hugo-book
--->
-
-  
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 1</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
 </head>
-
 <body>
-  <input type="checkbox" style="display: none" id="menu-control" />
-  <main class="flex container">
-    <aside class="book-menu fixed">
-      <nav>
-<h2 class="book-brand">
-  <a href="https://reaandrew.github.io/">Andy Rea&#39;s Blog</a>
-</h2>
-
-
-
-    
-
-  
-
-
-
-
-
- 
-  
-    
-
-  <ul>
-    
-    
-    <li>
+        <div class="container">
+          <div class="row">
+            <div class="col" id="header"><h1><a href="/">Andy Rea&#39;s Blog</a></h1>
+</div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 1</h1>
+      <h2>Sun, Jun 9, 2019</h2>
       
-
-  <a href="/posts/creating-a-simple-stress-test-tool-in-go-part-2/" >
-    
-  
-    
-    Creating a Simple Stress Test Tool in Go Part 2
-  
-
-  </a>
-
-
-    </li>
-    
-    <li>
-      
-
-  <a href="/posts/creating-a-simple-stress-test-tool-in-go-part-1/"  class="active">
-    
-  
-    
-    Creating a Simple Stress Test Tool in Go Part 1
-  
-
-  </a>
-
-
-    </li>
-    
-    <li>
-      
-
-  <a href="/posts/creating-a-simple-stress-test-tool-in-go/" >
-    
-  
-    
-    Creating a Simple Stress Test Tool in Go - Requirements
-  
-
-  </a>
-
-
-    </li>
-    
-    <li>
-      
-
-  <a href="/posts/getting-back-into-blogging-with-hugo/" >
-    
-  
-    
-    Getting back into blogging with Hugo!
-  
-
-  </a>
-
-
-    </li>
-    
-  </ul>
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-</nav>
-
-
-  
-<script>
-(function() {
-  var menu = document.querySelector('aside.book-menu nav')
-  addEventListener('beforeunload', function(event) {
-    localStorage.setItem('menu.scrollTop', menu.scrollTop)
-  });
-  menu.scrollTop = localStorage.getItem('menu.scrollTop')
-})()
-</script>
-
-
-
-    </aside>
-
-    <div class="book-page">
-      <header class="align-center justify-between book-header">
-  <label for="menu-control">
-    <img src="/svg/menu.svg" alt="Menu" />
-  </label>
-  <strong>
-  
-    
-    Creating a Simple Stress Test Tool in Go Part 1
-  
-</strong>
-</header>
-
-      
-
-<header class="markdown">
-  <h1>Creating a Simple Stress Test Tool in Go Part 1</h1>
-  <h5>
-    <strong>June 9, 2019</strong>
-  </h5>
-</header>
-<article class="markdown">
 
 <h2 id="must-be-continually-built-and-published-to-github-releases-supporting-windows-linux-and-mac">Must be continually built and published to github releases supporting Windows, Linux and Mac</h2>
 
@@ -239,14 +85,28 @@ jobs:
       - run: goxz -d out
       - run: ghr v0.<span style="color:#ae81ff">1.0</span> out</code></pre></div>
 <p>If you have not set the environment variable <code>GITHUB_TOKEN</code> in the Circle CI console <code>ghr</code> will error so this must be set.  Once this has built the releases will be uploaded and the repository will be tagged.</p>
-</article>
 
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+  https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/
+    </div>
+    <div class="col">
+      
+      <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/"  class="btn btn-light">
+        Creating a Simple Stress Test Tool in Go Part 2 <span class="badge badge-light">2 mins reading time</span>
+      </a>
       
     </div>
-  </main>
+  </div>
 
-  
-  
-</body>
-
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
 </html>
