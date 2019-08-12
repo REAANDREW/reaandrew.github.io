@@ -83,7 +83,7 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - run: goxz -d out
-      - run: ghr v0.<span style="color:#ae81ff">1.0</span> out</code></pre></div>
+      - run: ghr v0<span style="color:#ae81ff">.1.0</span> out</code></pre></div>
 <p>If you have not set the environment variable <code>GITHUB_TOKEN</code> in the Circle CI console <code>ghr</code> will error so this must be set.  Once this has built the releases will be uploaded and the repository will be tagged.</p>
 
     </div>
