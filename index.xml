@@ -8,10 +8,20 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Mon, 10 Jun 2019 20:22:20 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 19 Aug 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Enumerating Github Repositories in Bash</title>
+      <link>https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/</link>
+      <pubDate>Mon, 19 Aug 2019 00:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/</guid>
+      <description>I needed to get a list of all the repositories for a specific Github Organisation. Github limits the page size which you have use which ruled out a single call with a large value. I was also writing this routine in bash and less is more as they say.
+My approach was very simplistic in that it simply tried an incrementing value for next page and if the response was empty then the end of the list had been reached.</description>
+    </item>
     
     <item>
       <title>Creating a Simple Stress Test Tool in Go Part 2</title>
