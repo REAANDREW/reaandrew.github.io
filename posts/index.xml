@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Andy Rea&#39;s Blog</title>
+    <title>Posts on </title>
     <link>https://reaandrew.github.io/posts/</link>
-    <description>Recent content in Posts on Andy Rea&#39;s Blog</description>
+    <description>Recent content in Posts on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
@@ -49,7 +49,7 @@ package main import &amp;#34;fmt&amp;#34; func main() { fmt.</description>
       <pubDate>Sun, 09 Jun 2019 13:43:46 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</guid>
-      <description>Introduction One of the tools that has really stuck in my mind over the years is the siege stress test tool https://github.com/JoeDog/siege. It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
+      <description>One of the tools that has really stuck in my mind over the years is the siege stress test tool https://github.com/JoeDog/siege. It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
     </item>
     
     <item>

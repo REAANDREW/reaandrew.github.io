@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html><head>
     <title>Creating a Simple Stress Test Tool in Go - Requirements</title>
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
     <script src="/js/jquery-3.3.1.slim.min.js"></script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
         <div class="container">
-          <div class="row">
-            <div class="col" id="header"><h1><a href="/">Andy Rea&#39;s Blog</a></h1>
-</div>
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
           </div>
           <div class="row">
             <div class="col" id="content">
@@ -18,11 +22,7 @@
     <div class="col">
       <h1>Creating a Simple Stress Test Tool in Go - Requirements</h1>
       <h2>Sun, Jun 9, 2019</h2>
-      
-
-<h2 id="introduction">Introduction</h2>
-
-<p>One of the tools that has really stuck in my mind over the years is the siege stress test tool <a href="https://github.com/JoeDog/siege">https://github.com/JoeDog/siege</a>.  It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&hellip; and it would begin testing those urls with really clear output.  At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&hellip;  One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</p>
+      <p>One of the tools that has really stuck in my mind over the years is the siege stress test tool <a href="https://github.com/JoeDog/siege">https://github.com/JoeDog/siege</a>.  It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&hellip; and it would begin testing those urls with really clear output.  At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&hellip;  One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</p>
 
 <p>To create a simple clone of some of siege functionality I want to create an application with the following requirements, each being a separate blog post in this mini series:</p>
 
