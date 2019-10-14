@@ -8,10 +8,20 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Mon, 19 Aug 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 14 Oct 2019 06:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 3</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/</link>
+      <pubDate>Mon, 14 Oct 2019 06:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/</guid>
+      <description>Must accept a file arguement of urls to test For this feature I have added a file argument to the CLI configuration, with the value being passed to a new Application object. The CLI reposnsibility is to deal with the CLI context and not the logic of the application.
+RootCmd.PersistentFlags().StringVarP(&amp;amp;urlFile, &amp;#34;urls&amp;#34;, &amp;#34;u&amp;#34;, &amp;#34;&amp;#34;, &amp;#34;The urls file to use&amp;#34;) I have called the new struct Surge which will now be the main entry point of the actual application logic.</description>
+    </item>
     
     <item>
       <title>Enumerating Github Repositories in Bash</title>

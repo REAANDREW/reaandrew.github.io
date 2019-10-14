@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 3</title>
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 3</h1>
+      <h2>Mon, Oct 14, 2019</h2>
+      
+
+<h2 id="must-accept-a-file-arguement-of-urls-to-test">Must accept a file arguement of urls to test</h2>
+
+<p>For this feature I have added a file argument to the CLI configuration, with the value being passed to a new Application object.  The CLI reposnsibility is to deal with the CLI context and not the logic of the application.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">RootCmd</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">StringVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">urlFile</span>, <span style="color:#e6db74">&#34;urls&#34;</span>, <span style="color:#e6db74">&#34;u&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;The urls file to use&#34;</span>)</code></pre></div>
+<p>I have called the new struct <code>Surge</code> which will now be the main entry point of the actual application logic.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">RunE</span>: <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">cmd</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {                                                                                                                     
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Surge</span>{<span style="color:#a6e22e">UrlFilePath</span>: <span style="color:#a6e22e">urlFile</span>}.<span style="color:#a6e22e">Run</span>()
+},  </code></pre></div>
+<p>The Surge struct is inside the <code>client</code> package where all the core application objects will be placed.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">client</span>
+
+<span style="color:#f92672">import</span> (
+        <span style="color:#e6db74">&#34;bufio&#34;</span>
+        <span style="color:#e6db74">&#34;net/http&#34;</span>
+        <span style="color:#e6db74">&#34;os&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Surge</span> <span style="color:#66d9ef">struct</span> {
+        <span style="color:#a6e22e">UrlFilePath</span> <span style="color:#66d9ef">string</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#a6e22e">Surge</span>) <span style="color:#a6e22e">Run</span>() <span style="color:#66d9ef">error</span> {
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">UrlFilePath</span> <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;&#34;</span> {
+                <span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">UrlFilePath</span>)
+                <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+                        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+                }
+                <span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Client</span>{}
+                <span style="color:#a6e22e">scanner</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">bufio</span>.<span style="color:#a6e22e">NewScanner</span>(<span style="color:#a6e22e">file</span>)
+                <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Scan</span>() {
+                        <span style="color:#a6e22e">request</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">NewRequest</span>(<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Text</span>(), <span style="color:#66d9ef">nil</span>)
+                        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+                                <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+                        }
+                        <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">request</span>)
+                }
+
+                <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Err</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+                        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+                }
+        }
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/"  class="btn btn-light">
+          Enumerating Github Repositories in Bash <span class="badge badge-light">1 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>

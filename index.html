@@ -21,13 +21,20 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/">Creating a Simple Stress Test Tool in Go Part 3</a></h2>
+    <p>Must accept a file arguement of urls to test For this feature I have added a file argument to the CLI configuration, with the value being passed to a new Application object. The CLI reposnsibility is to deal with the CLI context and not the logic of the application.
+RootCmd.PersistentFlags().StringVarP(&amp;urlFile, &#34;urls&#34;, &#34;u&#34;, &#34;&#34;, &#34;The urls file to use&#34;) I have called the new struct Surge which will now be the main entry point of the actual application logic.</p>
+    <p>October 14, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/">Enumerating Github Repositories in Bash</a></h2>
     <p>I needed to get a list of all the repositories for a specific Github Organisation. Github limits the page size which you have use which ruled out a single call with a large value. I was also writing this routine in bash and less is more as they say.
 My approach was very simplistic in that it simply tried an incrementing value for next page and if the response was empty then the end of the list had been reached.</p>
     <p>August 19, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/">Creating a Simple Stress Test Tool in Go Part 2</a></h2>
