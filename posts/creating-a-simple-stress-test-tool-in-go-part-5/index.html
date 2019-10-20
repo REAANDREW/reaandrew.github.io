@@ -41,6 +41,23 @@
 }</code></pre></div>
 <p>I replaced all the use in the existing tests with this above.  I don&rsquo;t expect this to error and if it does I want everything to stop as it would be exceptional and I wanted to handle the error immediately as opposed to returning it.</p>
 
+<p>For the implementation I have used (after finding it through google) a relatively new way of shuffling an array in golang.  I have added a another step for this as I wanted to read all the urls into an array, shuffle the array and then work over the array as previous; as opposed to executing each line as it is  read from the file.  I have inclued the reference to where  I found the code to do this in the comments.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">scanner</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">bufio</span>.<span style="color:#a6e22e">NewScanner</span>(<span style="color:#a6e22e">file</span>)
+  <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Scan</span>() {
+    <span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Text</span>()
+    <span style="color:#a6e22e">lines</span> = append(<span style="color:#a6e22e">lines</span>, <span style="color:#a6e22e">line</span>)
+  }
+
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Random</span> {
+    <span style="color:#75715e">//https://yourbasic.org/golang/shuffle-slice-array/
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Seed</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">UnixNano</span>())
+    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Shuffle</span>(len(<span style="color:#a6e22e">lines</span>), <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) { <span style="color:#a6e22e">lines</span>[<span style="color:#a6e22e">i</span>], <span style="color:#a6e22e">lines</span>[<span style="color:#a6e22e">j</span>] = <span style="color:#a6e22e">lines</span>[<span style="color:#a6e22e">j</span>], <span style="color:#a6e22e">lines</span>[<span style="color:#a6e22e">i</span>] })
+  }
+
+  <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">lines</span> {
+    <span style="color:#a6e22e">args</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+    <span style="color:#a6e22e">HttpCommand</span>{}.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)
+  }</code></pre></div>
 <p>It is not that simple to test for randomness in a way which is going to work 100% of the time.  I could have added more granular tests which assert that the Reader passed in is the reader which is executed, therefor when I pass a Random Reader in, it will be used.  This would then need unit tests on the Random Reader and then you are back to the question of &ldquo;How do you truly test for random&rdquo;.  For my initial implementation I iterate 10 times and compare the resulting order with that of the sequential order and assert they are not equal.  Not perfect but this will do for now.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestSupportForRandomOrder</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
 	<span style="color:#a6e22e">urls</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">func</span>() []<span style="color:#66d9ef">string</span> {
@@ -75,6 +92,8 @@
 	}
 	<span style="color:#66d9ef">return</span>
 }</code></pre></div>
+<p>Finally, I needed to add the new flag for random to the main application.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">RootCmd</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">BoolVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">random</span>, <span style="color:#e6db74">&#34;random&#34;</span>, <span style="color:#e6db74">&#34;r&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;Read the urls in random order&#34;</span>)</code></pre></div>
     </div>
   </div>
   <div class="row">
