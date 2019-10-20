@@ -22,13 +22,20 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/">Creating a Simple Stress Test Tool in Go Part 4</a></h2>
+    <p>Must support http verbs GET,POST,PUT,DELETE I have added another use of the Cobra CLI for this feature so that I could support command line flags in the url list which must be provided to surge. Another reason was so that I was not parsing the commmand line arguments and flags by myself as that wheel is well and truly invented!
+package client import ( &#34;net/http&#34; &#34;github.com/spf13/cobra&#34; ) type HttpCommand struct { } func (httpCommand HttpCommand) Execute(args []string) error { client := http.</p>
+    <p>October 20, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/">Creating a Simple Stress Test Tool in Go Part 3</a></h2>
     <p>Must accept a file arguement of urls to test For this feature I have added a file argument to the CLI configuration, with the value being passed to a new Application object. The CLI reposnsibility is to deal with the CLI context and not the logic of the application.
 RootCmd.PersistentFlags().StringVarP(&amp;urlFile, &#34;urls&#34;, &#34;u&#34;, &#34;&#34;, &#34;The urls file to use&#34;) I have called the new struct Surge which will now be the main entry point of the actual application logic.</p>
     <p>October 14, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/">Enumerating Github Repositories in Bash</a></h2>

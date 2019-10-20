@@ -8,10 +8,20 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Mon, 14 Oct 2019 06:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 20 Oct 2019 06:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 4</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/</link>
+      <pubDate>Sun, 20 Oct 2019 06:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/</guid>
+      <description>Must support http verbs GET,POST,PUT,DELETE I have added another use of the Cobra CLI for this feature so that I could support command line flags in the url list which must be provided to surge. Another reason was so that I was not parsing the commmand line arguments and flags by myself as that wheel is well and truly invented!
+package client import ( &amp;#34;net/http&amp;#34; &amp;#34;github.com/spf13/cobra&amp;#34; ) type HttpCommand struct { } func (httpCommand HttpCommand) Execute(args []string) error { client := http.</description>
+    </item>
     
     <item>
       <title>Creating a Simple Stress Test Tool in Go Part 3</title>

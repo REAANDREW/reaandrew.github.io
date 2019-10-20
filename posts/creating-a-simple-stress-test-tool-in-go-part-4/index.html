@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 4</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 4</h1>
+      <h2>Sun, Oct 20, 2019</h2>
+      
+
+<h2 id="must-support-http-verbs-get-post-put-delete">Must support http verbs GET,POST,PUT,DELETE</h2>
+
+<p>I have added another use of the Cobra CLI for this feature so that I could support command line flags in the url list which must be provided to surge.  Another reason was so that I was not parsing the commmand line arguments and flags by myself as that wheel is well and truly invented!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">client</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;net/http&#34;</span>
+
+	<span style="color:#e6db74">&#34;github.com/spf13/cobra&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">HttpCommand</span> <span style="color:#66d9ef">struct</span> {
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">httpCommand</span> <span style="color:#a6e22e">HttpCommand</span>) <span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Client</span>{}
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">verb</span> <span style="color:#66d9ef">string</span>
+
+	<span style="color:#a6e22e">command</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>{
+		<span style="color:#a6e22e">Args</span>: <span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">ExactArgs</span>(<span style="color:#ae81ff">1</span>),
+		<span style="color:#a6e22e">RunE</span>: <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">cmd</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+			<span style="color:#a6e22e">request</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">NewRequest</span>(<span style="color:#a6e22e">verb</span>, <span style="color:#a6e22e">args</span>[<span style="color:#ae81ff">0</span>], <span style="color:#66d9ef">nil</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">request</span>)
+			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+		},
+	}
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">StringVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">verb</span>, <span style="color:#e6db74">&#34;verb&#34;</span>, <span style="color:#e6db74">&#34;X&#34;</span>, <span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>)
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">SetArgs</span>(<span style="color:#a6e22e">args</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>()
+}</code></pre></div>
+<p>There are a couple of things to say about this, first, I have extracted out the code to create a http request into its own file; second, although I have achieved the requirements of supporting GET,POST,PUT,DELETE it actually supports any verb.</p>
+
+<p>The code which loops through the file now creates and executes a HttpCommand.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">scanner</span>.<span style="color:#a6e22e">Text</span>()
+<span style="color:#a6e22e">args</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+<span style="color:#a6e22e">HttpCommand</span>{}.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)</code></pre></div>
+<p>To test this I had to update my test code so that each test could cleanly setup a new http server and to do this I used the gorilla mux package.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">startHTTPServer</span>(<span style="color:#a6e22e">callback</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>)) <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Server</span> {
+	<span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">mux</span>.<span style="color:#a6e22e">NewRouter</span>()
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Handle</span>(<span style="color:#e6db74">&#34;/{id}&#34;</span>, <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandlerFunc</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">w</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ResponseWriter</span>, <span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+		<span style="color:#a6e22e">callback</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">r</span>)
+		<span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">WriteString</span>(<span style="color:#a6e22e">w</span>, <span style="color:#e6db74">&#34;hello world\n&#34;</span>)
+	}))
+	<span style="color:#a6e22e">srv</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Server</span>{
+		<span style="color:#a6e22e">Addr</span>:    <span style="color:#e6db74">&#34;:8080&#34;</span>,
+		<span style="color:#a6e22e">Handler</span>: <span style="color:#a6e22e">r</span>,
+	}
+
+	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">srv</span>.<span style="color:#a6e22e">ListenAndServe</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ErrServerClosed</span> {
+			<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;ListenAndServe(): %s&#34;</span>, <span style="color:#a6e22e">err</span>)
+		}
+	}()
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">srv</span>
+}</code></pre></div>
+<p>Another interesting thing/side effect is that ddue to using the cobra library the order of the arguments and flags does not seem to matter.  I am just counting the verbs which I received and they are specified in different a different order.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestSupportForVerbPut</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">fileContents</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">`-X PUT http://localhost:8080/1
+</span><span style="color:#e6db74">http://localhost:8080/2 -X PUT`</span>
+
+	<span style="color:#75715e">//Write the urls to a file
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//Pass the urls file path in as a -u flag
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">TempFile</span>(<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">TempDir</span>(), <span style="color:#e6db74">&#34;prefix&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#a6e22e">err</span>)
+	}
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+	<span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">WriteFile</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), []byte(<span style="color:#a6e22e">fileContents</span>), <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">ModePerm</span>)
+
+	<span style="color:#a6e22e">methods</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{}
+	<span style="color:#a6e22e">srv</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">startHTTPServer</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+		<span style="color:#a6e22e">methods</span> = append(<span style="color:#a6e22e">methods</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Method</span>)
+	})
+
+	<span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">methods</span>, []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;PUT&#34;</span>, <span style="color:#e6db74">&#34;PUT&#34;</span>})
+
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">srv</span>.<span style="color:#a6e22e">Shutdown</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>()); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		panic(<span style="color:#a6e22e">err</span>) <span style="color:#75715e">// failure/timeout shutting down the server gracefully
+</span><span style="color:#75715e"></span>	}
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 3 <span class="badge badge-light">1 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>
