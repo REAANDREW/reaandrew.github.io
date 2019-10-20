@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 5</h1>
+      <h2>Sun, Oct 20, 2019</h2>
+      
+
+<h2 id="must-accept-an-argument-to-read-the-urls-sequentially-or-at-random">Must accept an argument to read the urls sequentially or at random</h2>
+
+<p>In siege one of the features was read the urls randomly using the <code>-i</code> flag which meant <strong>internet mode</strong>.  I thought it would be a bit more intuitive if I used <code>-r</code> and <code>--random</code> for the long hand flags.</p>
+
+<p>I did some refactoring in this iteration and one helper function I created was to simply how I created the test files with a list of url lines.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">CreateTestFile</span>(<span style="color:#a6e22e">lines</span> []<span style="color:#66d9ef">string</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">File</span> {
+	<span style="color:#a6e22e">fileContents</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Join</span>(<span style="color:#a6e22e">lines</span>, <span style="color:#e6db74">&#34;\n&#34;</span>)
+	<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">TempFile</span>(<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">TempDir</span>(), <span style="color:#e6db74">&#34;prefix&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		panic(<span style="color:#a6e22e">err</span>)
+	}
+	<span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">WriteFile</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), []byte(<span style="color:#a6e22e">fileContents</span>), <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">ModePerm</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">file</span>
+}</code></pre></div>
+<p>I replaced all the use in the existing tests with this above.  I don&rsquo;t expect this to error and if it does I want everything to stop as it would be exceptional and I wanted to handle the error immediately as opposed to returning it.</p>
+
+<p>It is not that simple to test for randomness in a way which is going to work 100% of the time.  I could have added more granular tests which assert that the Reader passed in is the reader which is executed, therefor when I pass a Random Reader in, it will be used.  This would then need unit tests on the Random Reader and then you are back to the question of &ldquo;How do you truly test for random&rdquo;.  For my initial implementation I iterate 10 times and compare the resulting order with that of the sequential order and assert they are not equal.  Not perfect but this will do for now.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestSupportForRandomOrder</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">urls</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">func</span>() []<span style="color:#66d9ef">string</span> {
+		<span style="color:#a6e22e">returnUrls</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{}
+		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+			<span style="color:#a6e22e">returnUrls</span> = append(<span style="color:#a6e22e">returnUrls</span>, <span style="color:#e6db74">&#34;http://localhost:8080/&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>))
+		}
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">returnUrls</span>
+	}()
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">CreateTestFile</span>(<span style="color:#a6e22e">urls</span>)
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">urlsVisited</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{}
+	<span style="color:#a6e22e">srv</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">startHTTPServer</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+		<span style="color:#a6e22e">urlsVisited</span> = append(<span style="color:#a6e22e">urlsVisited</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">RequestURI</span>)
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">srv</span>.<span style="color:#a6e22e">Shutdown</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>())
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-r&#34;</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">output</span>)
+
+	<span style="color:#a6e22e">urlPaths</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">MapStrings</span>(<span style="color:#a6e22e">urls</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">value</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">string</span> {
+		<span style="color:#a6e22e">items</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Split</span>(<span style="color:#a6e22e">value</span>, <span style="color:#e6db74">&#34;/&#34;</span>)
+		<span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;/&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">items</span>[len(<span style="color:#a6e22e">items</span>)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+	})
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">NotEqual</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">urlsVisited</span>, <span style="color:#a6e22e">urlPaths</span>)
+}</code></pre></div>
+<p>The <code>MapStrings</code> function is a another custom one I made as I needed to extract the paths from the original urls to compare against as the path is the only part captured inside the web server.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">MapStrings</span>(<span style="color:#a6e22e">array</span> []<span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">delegate</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">value</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">values</span> []<span style="color:#66d9ef">string</span>) {
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">value</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">array</span> {
+		<span style="color:#a6e22e">values</span> = append(<span style="color:#a6e22e">values</span>, <span style="color:#a6e22e">delegate</span>(<span style="color:#a6e22e">value</span>))
+	}
+	<span style="color:#66d9ef">return</span>
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 4 <span class="badge badge-light">2 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>

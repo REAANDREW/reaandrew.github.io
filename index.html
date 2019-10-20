@@ -22,13 +22,20 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-5/">Creating a Simple Stress Test Tool in Go Part 5</a></h2>
+    <p>Must accept an argument to read the urls sequentially or at random In siege one of the features was read the urls randomly using the -i flag which meant internet mode. I thought it would be a bit more intuitive if I used -r and --random for the long hand flags.
+I did some refactoring in this iteration and one helper function I created was to simply how I created the test files with a list of url lines.</p>
+    <p>October 20, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/">Creating a Simple Stress Test Tool in Go Part 4</a></h2>
     <p>Must support http verbs GET,POST,PUT,DELETE I have added another use of the Cobra CLI for this feature so that I could support command line flags in the url list which must be provided to surge. Another reason was so that I was not parsing the commmand line arguments and flags by myself as that wheel is well and truly invented!
 package client import ( &#34;net/http&#34; &#34;github.com/spf13/cobra&#34; ) type HttpCommand struct { } func (httpCommand HttpCommand) Execute(args []string) error { client := http.</p>
     <p>October 20, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/">Creating a Simple Stress Test Tool in Go Part 3</a></h2>
