@@ -8,10 +8,19 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sun, 20 Oct 2019 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 24 Oct 2019 06:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 6</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/</link>
+      <pubDate>Thu, 24 Oct 2019 06:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/</guid>
+      <description>Must accept an argument to configure the number of simulated users To simulate multiple different concurrent virtual users this feature makes use of goroutines. Once the urls have been read into an array, a new goroutine is created for every virtual user according to the number specified in the configuration. To make sure the execution does not end immediately due to the use of goroutines I added in a Semaphore (in go sync.</description>
+    </item>
     
     <item>
       <title>Creating a Simple Stress Test Tool in Go Part 5</title>
