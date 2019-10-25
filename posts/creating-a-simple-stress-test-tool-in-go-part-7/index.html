@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 7</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 7</h1>
+      <h2>Fri, Oct 25, 2019</h2>
+      
+
+<h2 id="must-accept-an-argument-to-specify-the-number-of-iterations">Must accept an argument to specify the number of iterations.</h2>
+
+<p>This feature provides the following functionality:</p>
+
+<ol>
+<li>If the number of iterations is not specified then the number of iterations will equal the number of lines in the url file.</li>
+<li>The number of iterations is per virtual user</li>
+<li>If the number of iterations is higher than the number of lines in the url file, the urls will be read from the beginning again until the number of iterations has been reached.</li>
+</ol>
+
+<p>The main change for this was made in the SurgeClient&rsquo;s execute method where I have amended the for loop criteria.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#a6e22e">Surge</span>) <span style="color:#a6e22e">execute</span>(<span style="color:#a6e22e">lines</span> []<span style="color:#66d9ef">string</span>) {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">wg</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">WorkerCount</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">1</span>)
+		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">linesValue</span> []<span style="color:#66d9ef">string</span>) {
+			<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">linesValue</span>) <span style="color:#f92672">||</span> (<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Iterations</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Iterations</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+				<span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">linesValue</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">%</span>len(<span style="color:#a6e22e">linesValue</span>)]
+				<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">command</span> = <span style="color:#a6e22e">HttpCommand</span>{}
+				<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">args</span> = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+				<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)
+			}
+			<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+		}(<span style="color:#a6e22e">lines</span>)
+	}
+	<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>()
+}</code></pre></div>
+<p>The part which makes the urls loop back around to the start is the modulus part <code>line := linesValue[i%len(linesValue)]</code>.</p>
+
+<p>I then tested this with a single worker and then with multiple workers.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestSupportForNumberOfIterations</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/2&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">concurrentWorkerCount</span> = <span style="color:#ae81ff">1</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">iterationCount</span> = <span style="color:#ae81ff">5</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">count</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">srv</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">startHTTPServer</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+		<span style="color:#a6e22e">count</span><span style="color:#f92672">++</span>
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">srv</span>.<span style="color:#a6e22e">Shutdown</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>())
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(),
+		<span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">iterationCount</span>),
+		<span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">concurrentWorkerCount</span>))
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">output</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">count</span>, <span style="color:#a6e22e">iterationCount</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestSupportForNumberOfIterationsWithConcurrentWorkers</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">concurrentWorkerCount</span> = <span style="color:#ae81ff">5</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">iterationCount</span> = <span style="color:#ae81ff">5</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">count</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">srv</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">startHTTPServer</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+		<span style="color:#a6e22e">count</span><span style="color:#f92672">++</span>
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">srv</span>.<span style="color:#a6e22e">Shutdown</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>())
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(),
+		<span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">iterationCount</span>),
+		<span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">concurrentWorkerCount</span>))
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">output</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">count</span>, <span style="color:#a6e22e">iterationCount</span><span style="color:#f92672">*</span><span style="color:#a6e22e">concurrentWorkerCount</span>)
+}</code></pre></div>
+<p>I added the Iterations property to the SurgeClient and also the new command line flag.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">RootCmd</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">IntVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">iterations</span>, <span style="color:#e6db74">&#34;number-iterations&#34;</span>, <span style="color:#e6db74">&#34;n&#34;</span>, <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">&#34;The number of iterations per virtual user&#34;</span>)</code></pre></div>
+<p>Up to this point the help text of the application looks like the following.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library <span style="color:#66d9ef">for</span> Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
+
+Usage:
+  surge <span style="color:#f92672">[</span>flags<span style="color:#f92672">]</span>
+
+Flags:
+      --config string           config file <span style="color:#f92672">(</span>default is $HOME/.surge.yaml<span style="color:#f92672">)</span>
+  -h, --help                    help <span style="color:#66d9ef">for</span> surge
+  -n, --number-iterations int   The number of iterations per virtual user <span style="color:#f92672">(</span>default <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+  -r, --random                  Read the urls in random order
+  -t, --toggle                  Help message <span style="color:#66d9ef">for</span> toggle
+  -u, --urls string             The urls file to use
+  -c, --worker-count int        The number of concurrent virtual users <span style="color:#f92672">(</span>default <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span></code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 6 <span class="badge badge-light">2 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>

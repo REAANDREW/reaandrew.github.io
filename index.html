@@ -22,12 +22,19 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-7/">Creating a Simple Stress Test Tool in Go Part 7</a></h2>
+    <p>Must accept an argument to specify the number of iterations. This feature provides the following functionality:
+ If the number of iterations is not specified then the number of iterations will equal the number of lines in the url file. The number of iterations is per virtual user If the number of iterations is higher than the number of lines in the url file, the urls will be read from the beginning again until the number of iterations has been reached.</p>
+    <p>October 25, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/">Creating a Simple Stress Test Tool in Go Part 6</a></h2>
     <p>Must accept an argument to configure the number of simulated users To simulate multiple different concurrent virtual users this feature makes use of goroutines. Once the urls have been read into an array, a new goroutine is created for every virtual user according to the number specified in the configuration. To make sure the execution does not end immediately due to the use of goroutines I added in a Semaphore (in go sync.</p>
     <p>October 24, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-5/">Creating a Simple Stress Test Tool in Go Part 5</a></h2>
