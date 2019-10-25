@@ -37,22 +37,18 @@
 <li><a href="/posts/creating-a-simple-stress-test-tool-in-go-part-5/">Part 5 (v0.5.0): must accept an argument to read the urls sequentially or at random.</a></li>
 <li><a href="/posts/creating-a-simple-stress-test-tool-in-go-part-6/">Part 6 (v0.6.0): must accept an argument to configure the number of simulated users.</a></li>
 <li><a href="/posts/creating-a-simple-stress-test-tool-in-go-part-7/">Part 7 (v0.7.0): must accept an argument to specify the number of iterations.</a></li>
-<li>must output the same statistics as siege into standard out after the test run:
-
-<ul>
-<li>Transactions (The total number of requests made)</li>
-<li>Availability (1 - (Number of errors / Transactions))</li>
-<li>Elapsed Time (The total time the test took to run)</li>
-<li>Data Transferred (The total number of bytes received from the server)</li>
-<li>Response Time (The average response time in ms)</li>
-<li>Transaction rate (The number of requests per second)</li>
-<li>Concurrency (The number of simulataneous connections)</li>
-<li>Throughput (The average number of bytes of bytes received from the server per second)</li>
-<li>Successful transactions</li>
-<li>Failed transactions</li>
-<li>Longest transaction</li>
-<li>Shortest transaction</li>
-</ul></li>
+<li>must output the statistics for Transactions (The total number of requests made) after the test run.</li>
+<li>must output the statistics for Availability (1 - (Number of errors / Transactions)) after the test run.</li>
+<li>must output the statistics for Elapsed Time (The total time the test took to run) after the test run.</li>
+<li>must output the statistics for Data Transferred (The total number of bytes received from the server) after the test run.</li>
+<li>must output the statistics for Response Time (The average response time in ms) after the test run.</li>
+<li>must output the statistics for Transaction rate (The number of requests per second) after the test run.</li>
+<li>must output the statistics for Concurrency (The number of simulataneous connections) after the test run.</li>
+<li>must output the statistics for Throughput (The average number of bytes of bytes received from the server per second) after the test run.</li>
+<li>must output the statistics for Successful transactions after the test run.</li>
+<li>must output the statistics for Failed transactions after the test run.</li>
+<li>must output the statistics for Longest transaction after the test run.</li>
+<li>must output the statistics for Shortest transaction after the test run.</li>
 </ul>
 
 <p>The full source code for this series can be found <a href="https://github.com/reaandrew/surge.git">https://github.com/reaandrew/surge.git</a> with a tag for each of the above versions for you to checkout the source code for each of the steps.</p>
