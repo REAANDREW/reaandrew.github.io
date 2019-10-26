@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 9</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 9</h1>
+      <h2>Sat, Oct 26, 2019</h2>
+      
+
+<h2 id="must-output-the-statistics-for-availability-1-number-of-errors-transactions-after-the-test-run">Must output the statistics for Availability (1 - (Number of errors / Transactions)) after the test run</h2>
+
+<p>I had to change the info which is returned by the HttpCommand for this and I created another struct called Result.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">client</span>
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Result</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">Transactions</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">Availability</span> <span style="color:#66d9ef">float64</span>
+}</code></pre></div>
+<p>I have defined an error in terms of Availability as any response which has a 4XX or 5XX response code.  One problem which I hit was the program would exit when I returned an error inside the CLI parser func (which is the correct behaviour).  I had to created an error variable in the outer scope, always return <code>nil</code> from the CLI function and then return the outer variable for the Surge app.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">client</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;errors&#34;</span>
+	<span style="color:#e6db74">&#34;net/http&#34;</span>
+	<span style="color:#e6db74">&#34;strconv&#34;</span>
+
+	<span style="color:#e6db74">&#34;github.com/spf13/cobra&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">HttpCommand</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">client</span> <span style="color:#a6e22e">HttpClient</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">httpCommand</span> <span style="color:#a6e22e">HttpCommand</span>) <span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">verb</span> <span style="color:#66d9ef">string</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">returnError</span> <span style="color:#66d9ef">error</span>
+
+	<span style="color:#a6e22e">command</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>{
+		<span style="color:#a6e22e">Args</span>: <span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">ExactArgs</span>(<span style="color:#ae81ff">1</span>),
+		<span style="color:#a6e22e">RunE</span>: <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">cmd</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+			<span style="color:#a6e22e">request</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">NewRequest</span>(<span style="color:#a6e22e">verb</span>, <span style="color:#a6e22e">args</span>[<span style="color:#ae81ff">0</span>], <span style="color:#66d9ef">nil</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httpCommand</span>.<span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">request</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">StatusCode</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">400</span> {
+				<span style="color:#a6e22e">returnError</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;Error &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">StatusCode</span>))
+			}
+			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+		},
+	}
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">StringVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">verb</span>, <span style="color:#e6db74">&#34;verb&#34;</span>, <span style="color:#e6db74">&#34;X&#34;</span>, <span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>)
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">SetArgs</span>(<span style="color:#a6e22e">args</span>)
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>()
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">returnError</span>
+}</code></pre></div>
+<p>The main method in Surge is growing large now and will need to be refactored on the next pass.  If the execution of the HTTPCommand returns an error I incremented the errors value, inside the lock context, and then return a result at the end.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#a6e22e">Surge</span>) <span style="color:#a6e22e">execute</span>(<span style="color:#a6e22e">lines</span> []<span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Result</span> {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lock</span> = <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>{}
+	<span style="color:#a6e22e">transactions</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>
+	<span style="color:#a6e22e">errors</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">wg</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">WorkerCount</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">1</span>)
+		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">linesValue</span> []<span style="color:#66d9ef">string</span>) {
+			<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">linesValue</span>) <span style="color:#f92672">||</span> (<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Iterations</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Iterations</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+				<span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">linesValue</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">%</span>len(<span style="color:#a6e22e">linesValue</span>)]
+				<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">command</span> = <span style="color:#a6e22e">HttpCommand</span>{
+					<span style="color:#a6e22e">client</span>: <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">HttpClient</span>,
+				}
+				<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">args</span> = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+				<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)
+				<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Lock</span>()
+				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+					<span style="color:#a6e22e">errors</span><span style="color:#f92672">++</span>
+				}
+				<span style="color:#a6e22e">transactions</span><span style="color:#f92672">++</span>
+				<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Unlock</span>()
+				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">Iterations</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> {
+					<span style="color:#66d9ef">break</span>
+				}
+			}
+			<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+		}(<span style="color:#a6e22e">lines</span>)
+	}
+	<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>()
+	<span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Result</span>{
+		<span style="color:#a6e22e">Transactions</span>: <span style="color:#a6e22e">transactions</span>,
+	}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">errors</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+		<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Availability</span> = <span style="color:#ae81ff">1</span>
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Availability</span> = float64(<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> float64(<span style="color:#a6e22e">errors</span>)<span style="color:#f92672">/</span>float64(<span style="color:#a6e22e">transactions</span>))
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>
+}</code></pre></div>
+<p>In order to test this with the FakeHTTPClient I created an Interceptor method which allows the test methods to change attributes of the response.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">client</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;net/http&#34;</span>
+	<span style="color:#e6db74">&#34;sync&#34;</span>
+)
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">m</span> = <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>{}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FakeHTTPClient</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">Requests</span>    []<span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>
+	<span style="color:#a6e22e">Interceptor</span> <span style="color:#a6e22e">InterceptorFunc</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewFakeHTTPClient</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeHTTPClient</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">FakeHTTPClient</span>{
+		<span style="color:#a6e22e">Interceptor</span>: <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">response</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Response</span>) {},
+	}
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">InterceptorFunc</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">response</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Response</span>)
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fakeClient</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeHTTPClient</span>) <span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">request</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Response</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Lock</span>()
+	<span style="color:#a6e22e">fakeClient</span>.<span style="color:#a6e22e">Requests</span> = append(<span style="color:#a6e22e">fakeClient</span>.<span style="color:#a6e22e">Requests</span>, <span style="color:#a6e22e">request</span>)
+	<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Unlock</span>()
+	<span style="color:#a6e22e">response</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Response</span>{
+		<span style="color:#a6e22e">StatusCode</span>: <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusOK</span>,
+	}
+	<span style="color:#a6e22e">fakeClient</span>.<span style="color:#a6e22e">Interceptor</span>(<span style="color:#a6e22e">response</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">response</span>, <span style="color:#66d9ef">nil</span>
+}</code></pre></div>
+<p>I created another specific struct for the test cases for Availability including the expected availability.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">StatusCodes</span>          []<span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">ExpectedAvailability</span> <span style="color:#66d9ef">float64</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_SurgeClientReturnsAvailability</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">cases</span> <span style="color:#f92672">:=</span> []<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{
+		<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{<span style="color:#a6e22e">StatusCodes</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">500</span>}, <span style="color:#a6e22e">ExpectedAvailability</span>: float64(<span style="color:#ae81ff">0.5</span>)},
+		<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{<span style="color:#a6e22e">StatusCodes</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">200</span>}, <span style="color:#a6e22e">ExpectedAvailability</span>: float64(<span style="color:#ae81ff">1</span>)},
+		<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{<span style="color:#a6e22e">StatusCodes</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">201</span>, <span style="color:#ae81ff">202</span>}, <span style="color:#a6e22e">ExpectedAvailability</span>: float64(<span style="color:#ae81ff">1</span>)},
+		<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{<span style="color:#a6e22e">StatusCodes</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">404</span>, <span style="color:#ae81ff">500</span>}, <span style="color:#a6e22e">ExpectedAvailability</span>: float64(<span style="color:#ae81ff">0.5</span>)},
+		<span style="color:#a6e22e">SurgeClientAvailabilityTestCase</span>{<span style="color:#a6e22e">StatusCodes</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">500</span>}, <span style="color:#a6e22e">ExpectedAvailability</span>: float64(<span style="color:#ae81ff">0</span>)},
+	}
+
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">testCase</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">cases</span> {
+		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;Test_SurgeClientReturnAvailabilityOf%v%%&#34;</span>, <span style="color:#a6e22e">testCase</span>.<span style="color:#a6e22e">ExpectedAvailability</span><span style="color:#f92672">*</span><span style="color:#ae81ff">100</span>), <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+			<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateRandomHttpTestFile</span>(len(<span style="color:#a6e22e">testCase</span>.<span style="color:#a6e22e">StatusCodes</span>))
+			<span style="color:#a6e22e">httpClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+			<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Surge</span>{
+				<span style="color:#a6e22e">UrlFilePath</span>: <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(),
+				<span style="color:#a6e22e">WorkerCount</span>: <span style="color:#ae81ff">1</span>,
+				<span style="color:#a6e22e">HttpClient</span>:  <span style="color:#a6e22e">httpClient</span>,
+				<span style="color:#a6e22e">Iterations</span>:  <span style="color:#ae81ff">1</span>,
+			}
+			<span style="color:#a6e22e">count</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>
+			<span style="color:#a6e22e">httpClient</span>.<span style="color:#a6e22e">Interceptor</span> = <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">response</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Response</span>) {
+				<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">StatusCode</span> = <span style="color:#a6e22e">testCase</span>.<span style="color:#a6e22e">StatusCodes</span>[<span style="color:#a6e22e">count</span>]
+				<span style="color:#a6e22e">count</span><span style="color:#f92672">++</span>
+			}
+			<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Run</span>()
+
+			<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+			<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">testCase</span>.<span style="color:#a6e22e">ExpectedAvailability</span>, <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Availability</span>)
+		})
+	}
+}</code></pre></div>
+<p>The final test was to assert that the Availability statistic was written out to standard out.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestOutputsNumberOfAvailability</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#a6e22e">client</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>)
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Contains</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">output</span>, <span style="color:#e6db74">&#34;Availability: 100%\n&#34;</span>)
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 8 <span class="badge badge-light">3 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>

@@ -4,16 +4,21 @@
   
   <url>
     <loc>https://reaandrew.github.io/</loc>
-    <lastmod>2019-10-25T07:00:00+00:00</lastmod>
+    <lastmod>2019-10-26T07:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/</loc>
-    <lastmod>2019-10-25T07:00:00+00:00</lastmod>
+    <loc>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/</loc>
+    <lastmod>2019-10-26T07:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://reaandrew.github.io/posts/</loc>
+    <lastmod>2019-10-26T07:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/</loc>
     <lastmod>2019-10-25T07:00:00+00:00</lastmod>
   </url>
   

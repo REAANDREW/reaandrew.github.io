@@ -22,12 +22,19 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/">Creating a Simple Stress Test Tool in Go Part 9</a></h2>
+    <p>Must output the statistics for Availability (1 - (Number of errors / Transactions)) after the test run I had to change the info which is returned by the HttpCommand for this and I created another struct called Result.
+package client type Result struct { Transactions int Availability float64 } I have defined an error in terms of Availability as any response which has a 4XX or 5XX response code. One problem which I hit was the program would exit when I returned an error inside the CLI parser func (which is the correct behaviour).</p>
+    <p>October 26, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/">Creating a Simple Stress Test Tool in Go Part 8</a></h2>
     <p>Must output the statistics for Transactions (The total number of requests made) after the test run During this feature I found a bug in the loop code in the SurgeClient where the program would continue to run if the number of urls was greater than the number of iterations and the number of iterations was greater than 1. Whilst I was debugging this I got thinking that having to write a test which consumes a HTTP server for every single test and case was getting cumbersome so I decided to make the HttpClient configurable and in that way inject a Fake one which did not actually make a HTTP call.</p>
     <p>October 25, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-7/">Creating a Simple Stress Test Tool in Go Part 7</a></h2>
