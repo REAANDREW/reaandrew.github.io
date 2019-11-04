@@ -23,6 +23,16 @@
     </item>
     
     <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 13</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-13/</link>
+      <pubDate>Sun, 03 Nov 2019 07:10:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-13/</guid>
+      <description>Must output the statistics for Transaction rate (The number of requests per second) after the test run For this requirement I have used the Meter type from the go-metrics package. The RateMean() function returns the value of the per second interval which is perfect for this requirement. I have updated the value by 1 each time a test completes.
+surge.transactionRate.Mark(1) There was not much benefit in trying to mock out anything for this one so I just relied on a single integration test which tested that the outputted value was something greater than 0.</description>
+    </item>
+    
+    <item>
       <title>Creating a Simple Stress Test Tool in Go Part 11</title>
       <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/</link>
       <pubDate>Sun, 03 Nov 2019 07:00:00 +0000</pubDate>

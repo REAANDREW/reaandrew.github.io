@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 13</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 13</h1>
+      <h2>Sun, Nov 3, 2019</h2>
+      
+
+<h2 id="must-output-the-statistics-for-transaction-rate-the-number-of-requests-per-second-after-the-test-run">Must output the statistics for Transaction rate (The number of requests per second) after the test run</h2>
+
+<p>For this requirement I have used the <code>Meter</code> type from the go-metrics package.  The <code>RateMean()</code> function returns the value of the per second interval which is perfect for this requirement.  I have updated the value by 1 each time a test completes.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">transactionRate</span>.<span style="color:#a6e22e">Mark</span>(<span style="color:#ae81ff">1</span>)</code></pre></div>
+<p>There was not much benefit in trying to mock out anything for this one so I just relied on a single integration test which tested that the outputted value was something greater than 0.  I could and should have written a test for this in the SurgeClient testt suite but I didn&rsquo;t bother.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestOutputsAverageTransactionRate</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">NewFakeTimer</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Minute</span>)
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">timer</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>)
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">matched</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">Match</span>(<span style="color:#e6db74">`Average Transaction Rate: [^0][\d]+ transactions/sec`</span>, []byte(<span style="color:#a6e22e">output</span>))
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">True</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">matched</span>)
+}</code></pre></div>
+<p>The actual output of the program at this point looks like the following (I did not have any server running hence the 0% availability)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Transactions: <span style="color:#ae81ff">10</span>
+Availability: <span style="color:#ae81ff">0</span>%          
+Elapsed Time: <span style="color:#ae81ff">176</span>.813µs                                         
+Total Bytes Sent: <span style="color:#ae81ff">950</span> B                                                 
+Total Bytes Received: <span style="color:#ae81ff">0</span> B                                
+Average Response Time: <span style="color:#ae81ff">0</span>.17251229999999998ms
+Average Transaction Rate: <span style="color:#ae81ff">3105</span> transactions/sec</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 11 <span class="badge badge-light">3 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-12/"  class="btn btn-light">
+        Creating a Simple Stress Test Tool in Go Part 12 <span class="badge badge-light">2 mins reading time</span>
+      </a>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>
