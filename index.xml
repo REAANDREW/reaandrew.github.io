@@ -14,6 +14,16 @@
     
     
     <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 10</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</link>
+      <pubDate>Sat, 26 Oct 2019 07:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</guid>
+      <description>Must output the statistics for Elapsed Time (The total time the test took to run) after the test run Like all tests which involve time as a variable it is always useful to fake time to make testing quicker and simpler. The first part of this was to assert that the time was output correctly in the results.
+func TestOutputsElapsedTimeInHumanReadableForm(t *testing.T) { file := utils.CreateTestFile([]string{ &amp;#34;http://localhost:8080/1&amp;#34;, }) defer os.Remove(file.Name()) client := client.</description>
+    </item>
+    
+    <item>
       <title>Creating a Simple Stress Test Tool in Go Part 9</title>
       <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/</link>
       <pubDate>Sat, 26 Oct 2019 07:00:00 +0000</pubDate>

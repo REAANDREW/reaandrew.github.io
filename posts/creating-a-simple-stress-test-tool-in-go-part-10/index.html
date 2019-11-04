@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 10</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 10</h1>
+      <h2>Sat, Oct 26, 2019</h2>
+      
+
+<h2 id="must-output-the-statistics-for-elapsed-time-the-total-time-the-test-took-to-run-after-the-test-run">Must output the statistics for Elapsed Time (The total time the test took to run) after the test run</h2>
+
+<p>Like all tests which involve time as a variable it is always useful to fake time to make testing quicker and simpler.  The first part of this was to assert that the time was output correctly in the results.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestOutputsElapsedTimeInHumanReadableForm</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">NewFakeTimer</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Minute</span>)
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">timer</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>)
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Contains</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">output</span>, <span style="color:#e6db74">&#34;Elapsed Time: 1m0s\n&#34;</span>)
+}</code></pre></div>
+<p>I added an extra argument to the <code>executeCommand</code> method to supply the timer the timer implementation.  In the test I am setting what the elapsed time will be when queried.</p>
+
+<p>The interface of the timer.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">utils</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;time&#34;</span>
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Timer</span> <span style="color:#66d9ef">interface</span> {
+	<span style="color:#a6e22e">Start</span>()
+	<span style="color:#a6e22e">Stop</span>() <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>
+}</code></pre></div>
+<p>The implementation of the FakeTimer.  There is an extra method to change the value of the Elapsed Time.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">utils</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;time&#34;</span>
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FakeTimer</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">elapsed</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">timer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeTimer</span>) <span style="color:#a6e22e">SetElapsed</span>(<span style="color:#a6e22e">duration</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>) {
+	<span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">elapsed</span> = <span style="color:#a6e22e">duration</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">timer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeTimer</span>) <span style="color:#a6e22e">Start</span>() {
+
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">timer</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeTimer</span>) <span style="color:#a6e22e">Stop</span>() <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">elapsed</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewFakeTimer</span>(<span style="color:#a6e22e">duration</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">FakeTimer</span> {
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">FakeTimer</span>{}
+	<span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">SetElapsed</span>(<span style="color:#a6e22e">duration</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">timer</span>
+}</code></pre></div>
+<p>In the main command I have defaulted this to be the DefaultTimer which uses actual time.  The convention I have been following for interfaces, fakes and reals is <em>Interface</em>, <em>FakeInterfaceName</em>, <em>DefaultInterfaceName</em>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">cfgFile</span>     <span style="color:#66d9ef">string</span>
+	<span style="color:#a6e22e">urlFile</span>     <span style="color:#66d9ef">string</span>
+	<span style="color:#a6e22e">random</span>      <span style="color:#66d9ef">bool</span>
+	<span style="color:#a6e22e">workerCount</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">iterations</span>  <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">Timer</span>       <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">Timer</span>       = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">DefaultTimer</span>{}
+	<span style="color:#a6e22e">HttpClient</span>  <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">HttpClient</span> = <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewDefaultHttpClient</span>()
+)</code></pre></div>
+<p>One refactoring I made for this version is introducing the builder pattern to create the actual surge client which tidied up the code.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">surgeClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewSurgeClientBuilder</span>().
+  <span style="color:#a6e22e">SetURLFilePath</span>(<span style="color:#a6e22e">urlFile</span>).
+  <span style="color:#a6e22e">SetRandom</span>(<span style="color:#a6e22e">random</span>).
+  <span style="color:#a6e22e">SetWorkers</span>(<span style="color:#a6e22e">workerCount</span>).
+  <span style="color:#a6e22e">SetIterations</span>(<span style="color:#a6e22e">iterations</span>).
+  <span style="color:#a6e22e">SetHTTPClient</span>(<span style="color:#a6e22e">HttpClient</span>).
+  <span style="color:#a6e22e">SetTimer</span>(<span style="color:#a6e22e">Timer</span>).
+  <span style="color:#a6e22e">Build</span>()
+
+<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">surgeClient</span>.<span style="color:#a6e22e">Run</span>()</code></pre></div>
+<p>The method to create the builder creates a default instantiation of a SurgeClient, as a pointer, and then uses the different methods to change the properties with the <code>Build</code> method returning a reference to the SurgeClient pointer.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewSurgeClientBuilder</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">SurgeClientBuilder</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">SurgeClientBuilder</span>{
+		<span style="color:#a6e22e">client</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">surge</span>{
+			<span style="color:#a6e22e">workerCount</span>: <span style="color:#ae81ff">1</span>,
+			<span style="color:#a6e22e">iterations</span>:  <span style="color:#ae81ff">1</span>,
+			<span style="color:#a6e22e">httpClient</span>:  <span style="color:#a6e22e">NewDefaultHttpClient</span>(),
+			<span style="color:#a6e22e">timer</span>:       <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">DefaultTimer</span>{},
+			<span style="color:#a6e22e">lock</span>:        <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>{},
+			<span style="color:#a6e22e">waitGroup</span>:   <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>{},
+		},
+	}
+}</code></pre></div>
+<p>Another refactoring I made in this version was to separate out some concerns in the SurgeClient, with all worker related activies extracted into a method called worker which is executed for each goroutine.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">surge</span>) <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">linesValue</span> []<span style="color:#66d9ef">string</span>) {
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">linesValue</span>) <span style="color:#f92672">||</span> (<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">linesValue</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">%</span>len(<span style="color:#a6e22e">linesValue</span>)]
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">command</span> = <span style="color:#a6e22e">HttpCommand</span>{
+			<span style="color:#a6e22e">client</span>: <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">httpClient</span>,
+		}
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">args</span> = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+		<span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Lock</span>()
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">errors</span><span style="color:#f92672">++</span>
+		}
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">transactions</span><span style="color:#f92672">++</span>
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Unlock</span>()
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> {
+			<span style="color:#66d9ef">break</span>
+		}
+	}
+	<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">waitGroup</span>.<span style="color:#a6e22e">Done</span>()
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">surge</span>) <span style="color:#a6e22e">execute</span>(<span style="color:#a6e22e">lines</span> []<span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Result</span> {
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">workerCount</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">Start</span>()
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">waitGroup</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">1</span>)
+		<span style="color:#66d9ef">go</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">lines</span>)
+	}
+	<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">waitGroup</span>.<span style="color:#a6e22e">Wait</span>()
+	<span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Result</span>{
+		<span style="color:#a6e22e">Transactions</span>: <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">transactions</span>,
+		<span style="color:#a6e22e">ElapsedTime</span>:  <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">Stop</span>(),
+	}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">errors</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+		<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Availability</span> = <span style="color:#ae81ff">1</span>
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Availability</span> = float64(<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> float64(<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">errors</span>)<span style="color:#f92672">/</span>float64(<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">transactions</span>))
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>
+}</code></pre></div>
+<p>I did not have much need to use different test cases for this requirement; I should really have added an integration test for the <em>DefaultTimer</em> but I didn&rsquo;t yet.  The current test makes use of the <em>Builder</em> and the <em>FakeTimer</em>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_SurgeClientReturnsElapsedTime</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateRandomHttpTestFile</span>(<span style="color:#ae81ff">1</span>)
+	<span style="color:#a6e22e">httpClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">expectedElapsed</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">FakeTimer</span>{}
+	<span style="color:#a6e22e">timer</span>.<span style="color:#a6e22e">SetElapsed</span>(<span style="color:#a6e22e">expectedElapsed</span>)
+	<span style="color:#a6e22e">surgeClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewSurgeClientBuilder</span>().
+		<span style="color:#a6e22e">SetURLFilePath</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>()).
+		<span style="color:#a6e22e">SetHTTPClient</span>(<span style="color:#a6e22e">httpClient</span>).
+		<span style="color:#a6e22e">SetTimer</span>(<span style="color:#a6e22e">timer</span>).
+		<span style="color:#a6e22e">Build</span>()
+	<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">surgeClient</span>.<span style="color:#a6e22e">Run</span>()
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">expectedElapsed</span>, <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">ElapsedTime</span>)
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 9 <span class="badge badge-light">3 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>
