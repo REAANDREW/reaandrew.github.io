@@ -8,15 +8,25 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Sat, 26 Oct 2019 07:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 03 Nov 2019 07:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Creating a Simple Stress Test Tool in Go Part 11</title>
+      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/</link>
+      <pubDate>Sun, 03 Nov 2019 07:00:00 +0000</pubDate>
+      <author>email@andrewrea.co.uk (Andy Rea)</author>
+      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/</guid>
+      <description>Must output the statistics for Data Transferred (The total number of bytes received from the server) after the test run. For this requirement I made use of two utilities inside the httputils package being:
+ DumpRequestOut DumpResponse  This provides the entire set of bytes for a given request or response respectively. I have simply added each of the worker values to a single value which I output at the end of the run.</description>
+    </item>
+    
+    <item>
       <title>Creating a Simple Stress Test Tool in Go Part 10</title>
       <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</link>
-      <pubDate>Sat, 26 Oct 2019 07:00:00 +0000</pubDate>
+      <pubDate>Sun, 03 Nov 2019 05:00:00 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</guid>
       <description>Must output the statistics for Elapsed Time (The total time the test took to run) after the test run Like all tests which involve time as a variable it is always useful to fake time to make testing quicker and simpler. The first part of this was to assert that the time was output correctly in the results.

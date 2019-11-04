@@ -22,10 +22,19 @@
             <div class="col" id="content">
   
     
+    <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/">Creating a Simple Stress Test Tool in Go Part 11</a></h2>
+    <p>Must output the statistics for Data Transferred (The total number of bytes received from the server) after the test run. For this requirement I made use of two utilities inside the httputils package being:
+ DumpRequestOut DumpResponse  This provides the entire set of bytes for a given request or response respectively. I have simply added each of the worker values to a single value which I output at the end of the run.</p>
+    <p>November 3, 2019</p>
+      
+  
+    
+  
+    
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/">Creating a Simple Stress Test Tool in Go Part 10</a></h2>
     <p>Must output the statistics for Elapsed Time (The total time the test took to run) after the test run Like all tests which involve time as a variable it is always useful to fake time to make testing quicker and simpler. The first part of this was to assert that the time was output correctly in the results.
 func TestOutputsElapsedTimeInHumanReadableForm(t *testing.T) { file := utils.CreateTestFile([]string{ &#34;http://localhost:8080/1&#34;, }) defer os.Remove(file.Name()) client := client.</p>
-    <p>October 26, 2019</p>
+    <p>November 3, 2019</p>
       
   
     
@@ -34,8 +43,6 @@ func TestOutputsElapsedTimeInHumanReadableForm(t *testing.T) { file := utils.Cre
 package client type Result struct { Transactions int Availability float64 } I have defined an error in terms of Availability as any response which has a 4XX or 5XX response code. One problem which I hit was the program would exit when I returned an error inside the CLI parser func (which is the correct behaviour).</p>
     <p>October 26, 2019</p>
       
-  
-    
   
     
     <h2><a class="text-dark" href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/">Creating a Simple Stress Test Tool in Go Part 8</a></h2>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Creating a Simple Stress Test Tool in Go Part 11</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Creating a Simple Stress Test Tool in Go Part 11</h1>
+      <h2>Sun, Nov 3, 2019</h2>
+      
+
+<h2 id="must-output-the-statistics-for-data-transferred-the-total-number-of-bytes-received-from-the-server-after-the-test-run">Must output the statistics for Data Transferred (The total number of bytes received from the server) after the test run.</h2>
+
+<p>For this requirement I made use of two utilities inside the <code>httputils</code> package being:</p>
+
+<ul>
+<li><code>DumpRequestOut</code></li>
+<li><code>DumpResponse</code></li>
+</ul>
+
+<p>This provides the entire set of bytes for a given request or response respectively.  I have simply added each of the worker values to a single value which I output at the end of the run.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">surge</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">surge</span>) <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">linesValue</span> []<span style="color:#66d9ef">string</span>) {
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">linesValue</span>) <span style="color:#f92672">||</span> (<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#a6e22e">line</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">linesValue</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">%</span>len(<span style="color:#a6e22e">linesValue</span>)]
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">command</span> = <span style="color:#a6e22e">HttpCommand</span>{
+			<span style="color:#a6e22e">client</span>: <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">httpClient</span>,
+		}
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">args</span> = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Fields</span>(<span style="color:#a6e22e">line</span>)
+		<span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span>)
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Lock</span>()
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">errors</span><span style="color:#f92672">++</span>
+		}
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">transactions</span><span style="color:#f92672">++</span>
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">totalBytesSent</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesSent</span>
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">totalBytesReceived</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesReceived</span>
+		<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Unlock</span>()
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">iterations</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> {
+			<span style="color:#66d9ef">break</span>
+		}
+	}
+	<span style="color:#a6e22e">surge</span>.<span style="color:#a6e22e">waitGroup</span>.<span style="color:#a6e22e">Done</span>()
+}</code></pre></div>
+<p>The values for the request and response bytes are retrieved inside the HttpCommand which uses the underlying HttpClient interface which I have defined for testing purposes.  It is getting a little large this method so this will be targeted for refactoring in the next requirement.  One thing to point out in this code below is that I only operate on the response body if it is not <code>nil</code> which is the case during some of the tests.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">httpCommand</span> <span style="color:#a6e22e">HttpCommand</span>) <span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">HttpResult</span> {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">verb</span> <span style="color:#66d9ef">string</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">result</span> <span style="color:#a6e22e">HttpResult</span>
+
+	<span style="color:#a6e22e">command</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>{
+		<span style="color:#a6e22e">Args</span>: <span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">ExactArgs</span>(<span style="color:#ae81ff">1</span>),
+		<span style="color:#a6e22e">RunE</span>: <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">cmd</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">cobra</span>.<span style="color:#a6e22e">Command</span>, <span style="color:#a6e22e">args</span> []<span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">error</span> {
+			<span style="color:#a6e22e">request</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">NewRequest</span>(<span style="color:#a6e22e">verb</span>, <span style="color:#a6e22e">args</span>[<span style="color:#ae81ff">0</span>], <span style="color:#66d9ef">nil</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#a6e22e">requestBytes</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httputil</span>.<span style="color:#a6e22e">DumpRequestOut</span>(<span style="color:#a6e22e">request</span>, <span style="color:#66d9ef">true</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesSent</span> = len(<span style="color:#a6e22e">requestBytes</span>)
+			<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httpCommand</span>.<span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Execute</span>(<span style="color:#a6e22e">request</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span> = <span style="color:#a6e22e">err</span>
+			} <span style="color:#66d9ef">else</span> {
+				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+					<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>.<span style="color:#a6e22e">Close</span>()
+					<span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">Copy</span>(<span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">Discard</span>, <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>)
+				}
+				<span style="color:#a6e22e">responseBytes</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httputil</span>.<span style="color:#a6e22e">DumpResponse</span>(<span style="color:#a6e22e">response</span>, <span style="color:#66d9ef">true</span>)
+				<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesReceived</span> = len(<span style="color:#a6e22e">responseBytes</span>)
+				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+					<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span> = <span style="color:#a6e22e">err</span>
+				}
+				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">StatusCode</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">400</span> {
+					<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;Error &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">StatusCode</span>))
+				}
+			}
+			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+		},
+	}
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">PersistentFlags</span>().<span style="color:#a6e22e">StringVarP</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">verb</span>, <span style="color:#e6db74">&#34;verb&#34;</span>, <span style="color:#e6db74">&#34;X&#34;</span>, <span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>)
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">SetArgs</span>(<span style="color:#a6e22e">args</span>)
+	<span style="color:#a6e22e">command</span>.<span style="color:#a6e22e">Execute</span>()
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>
+}</code></pre></div>
+<p>For the tests I did a quick run to understand the size of one of my pre-baked requests and responses and used this value as the target assertion.  I did not want to abstract away anymore than I have done so this seemed a reasonable solution.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_SurgeClientReturnsTotalBytesSent</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateRandomHttpTestFile</span>(<span style="color:#ae81ff">1</span>)
+	<span style="color:#a6e22e">httpClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">surgeClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewSurgeClientBuilder</span>().
+		<span style="color:#a6e22e">SetURLFilePath</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>()).
+		<span style="color:#a6e22e">SetHTTPClient</span>(<span style="color:#a6e22e">httpClient</span>).
+		<span style="color:#a6e22e">Build</span>()
+	<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">surgeClient</span>.<span style="color:#a6e22e">Run</span>()
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#75715e">//This is the size of one request dumped
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesSent</span>, <span style="color:#ae81ff">96</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_SurgeClientReturnsTotalBytesReceived</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateRandomHttpTestFile</span>(<span style="color:#ae81ff">1</span>)
+	<span style="color:#a6e22e">httpClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">surgeClient</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewSurgeClientBuilder</span>().
+		<span style="color:#a6e22e">SetURLFilePath</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>()).
+		<span style="color:#a6e22e">SetHTTPClient</span>(<span style="color:#a6e22e">httpClient</span>).
+		<span style="color:#a6e22e">Build</span>()
+	<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">surgeClient</span>.<span style="color:#a6e22e">Run</span>()
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#75715e">//This is the size of one request dumped
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Equal</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">TotalBytesReceived</span>, <span style="color:#ae81ff">38</span>)
+}</code></pre></div>
+<p>Finally the test to ensure the value is output when ran is below.  The output is formatted using a package called <em>humanize</em>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestOutputsTotalBytesSent</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">NewFakeTimer</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Minute</span>)
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">timer</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>)
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Contains</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">output</span>, <span style="color:#e6db74">&#34;Total Bytes Sent: 96 B\n&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestOutputsTotalBytesReceived</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">CreateTestFile</span>([]<span style="color:#66d9ef">string</span>{
+		<span style="color:#e6db74">&#34;http://localhost:8080/1&#34;</span>,
+	})
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Remove</span>(<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>())
+
+	<span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">NewFakeHTTPClient</span>()
+	<span style="color:#a6e22e">timer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">utils</span>.<span style="color:#a6e22e">NewFakeTimer</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Minute</span>)
+
+	<span style="color:#a6e22e">output</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">executeCommand</span>(<span style="color:#a6e22e">cmd</span>.<span style="color:#a6e22e">RootCmd</span>, <span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">timer</span>, <span style="color:#e6db74">&#34;-u&#34;</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Name</span>(), <span style="color:#e6db74">&#34;-n&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>)
+
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Nil</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">err</span>)
+	<span style="color:#a6e22e">assert</span>.<span style="color:#a6e22e">Contains</span>(<span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">output</span>, <span style="color:#e6db74">&#34;Total Bytes Received: 38 B\n&#34;</span>)
+}</code></pre></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/"  class="btn btn-light">
+          Creating a Simple Stress Test Tool in Go Part 10 <span class="badge badge-light">3 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>
