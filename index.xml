@@ -24,16 +24,6 @@ My approach was very simplistic in that it simply tried an incrementing value fo
     </item>
     
     <item>
-      <title>Getting back into blogging with Hugo!</title>
-      <link>https://reaandrew.github.io/posts/getting-back-into-blogging-with-hugo/</link>
-      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/getting-back-into-blogging-with-hugo/</guid>
-      <description>This is a first blog post whilst I get this site back up and running using Hugo.
-The deployment option which I am using is the one where you use one github repository to store all the source and raw material and another github repository for the generated artefacts which are then published on github pages. There other ways of doing this (e.g. using a branch), which I tried, but I settled with the two repos approach.</description>
-    </item>
-    
-    <item>
       <title>about</title>
       <link>https://reaandrew.github.io/pages/about/</link>
       <pubDate>Sun, 11 Feb 2018 00:00:00 +0000</pubDate>
