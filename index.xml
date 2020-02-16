@@ -8,117 +8,10 @@
     <language>en-gb</language>
     <managingEditor>email@andrewrea.co.uk (Andy Rea)</managingEditor>
     <webMaster>email@andrewrea.co.uk (Andy Rea)</webMaster>
-    <lastBuildDate>Tue, 05 Nov 2019 07:10:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 19 Aug 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://reaandrew.github.io/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 13</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-13/</link>
-      <pubDate>Tue, 05 Nov 2019 07:10:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-13/</guid>
-      <description>Must output the statistics for Transaction rate (The number of requests per second) after the test run For this requirement I have used the Meter type from the go-metrics package. The RateMean() function returns the value of the per second interval which is perfect for this requirement. I have updated the value by 1 each time a test completes.
-surge.transactionRate.Mark(1) There was not much benefit in trying to mock out anything for this one so I just relied on a single integration test which tested that the outputted value was something greater than 0.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 12</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-12/</link>
-      <pubDate>Sun, 03 Nov 2019 07:10:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-12/</guid>
-      <description>Must output the statistics for Response Time (The average response time in ms) after the test run. For this requirement I have started to use the metrics package from here https://github.com/rcrowley/go-metrics. It is a really good library and it without it I would just be adding more code to do simple maths which is fine but I also know that future requirements will need similar functionality so introducing this at this point seemed the best option.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 11</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/</link>
-      <pubDate>Sun, 03 Nov 2019 07:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-11/</guid>
-      <description>Must output the statistics for Data Transferred (The total number of bytes received from the server) after the test run. For this requirement I made use of two utilities inside the httputils package being:
- DumpRequestOut DumpResponse  This provides the entire set of bytes for a given request or response respectively. I have simply added each of the worker values to a single value which I output at the end of the run.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 10</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</link>
-      <pubDate>Sun, 03 Nov 2019 05:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-10/</guid>
-      <description>Must output the statistics for Elapsed Time (The total time the test took to run) after the test run Like all tests which involve time as a variable it is always useful to fake time to make testing quicker and simpler. The first part of this was to assert that the time was output correctly in the results.
-func TestOutputsElapsedTimeInHumanReadableForm(t *testing.T) { file := utils.CreateTestFile([]string{ &amp;#34;http://localhost:8080/1&amp;#34;, }) defer os.Remove(file.Name()) client := client.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 9</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/</link>
-      <pubDate>Sat, 26 Oct 2019 07:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-9/</guid>
-      <description>Must output the statistics for Availability (1 - (Number of errors / Transactions)) after the test run I had to change the info which is returned by the HttpCommand for this and I created another struct called Result.
-package client type Result struct { Transactions int Availability float64 } I have defined an error in terms of Availability as any response which has a 4XX or 5XX response code. One problem which I hit was the program would exit when I returned an error inside the CLI parser func (which is the correct behaviour).</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 8</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/</link>
-      <pubDate>Fri, 25 Oct 2019 07:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-8/</guid>
-      <description>Must output the statistics for Transactions (The total number of requests made) after the test run During this feature I found a bug in the loop code in the SurgeClient where the program would continue to run if the number of urls was greater than the number of iterations and the number of iterations was greater than 1. Whilst I was debugging this I got thinking that having to write a test which consumes a HTTP server for every single test and case was getting cumbersome so I decided to make the HttpClient configurable and in that way inject a Fake one which did not actually make a HTTP call.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 7</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-7/</link>
-      <pubDate>Fri, 25 Oct 2019 06:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-7/</guid>
-      <description>Must accept an argument to specify the number of iterations. This feature provides the following functionality:
- If the number of iterations is not specified then the number of iterations will equal the number of lines in the url file. The number of iterations is per virtual user If the number of iterations is higher than the number of lines in the url file, the urls will be read from the beginning again until the number of iterations has been reached.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 6</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/</link>
-      <pubDate>Thu, 24 Oct 2019 06:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-6/</guid>
-      <description>Must accept an argument to configure the number of simulated users To simulate multiple different concurrent virtual users this feature makes use of goroutines. Once the urls have been read into an array, a new goroutine is created for every virtual user according to the number specified in the configuration. To make sure the execution does not end immediately due to the use of goroutines I added in a Semaphore (in go sync.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 5</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-5/</link>
-      <pubDate>Sun, 20 Oct 2019 12:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-5/</guid>
-      <description>Must accept an argument to read the urls sequentially or at random In siege one of the features was read the urls randomly using the -i flag which meant internet mode. I thought it would be a bit more intuitive if I used -r and --random for the long hand flags.
-I did some refactoring in this iteration and one helper function I created was to simply how I created the test files with a list of url lines.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 4</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/</link>
-      <pubDate>Sun, 20 Oct 2019 06:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-4/</guid>
-      <description>Must support http verbs GET,POST,PUT,DELETE I have added another use of the Cobra CLI for this feature so that I could support command line flags in the url list which must be provided to surge. Another reason was so that I was not parsing the commmand line arguments and flags by myself as that wheel is well and truly invented!
-package client import ( &amp;#34;net/http&amp;#34; &amp;#34;github.com/spf13/cobra&amp;#34; ) type HttpCommand struct { } func (httpCommand HttpCommand) Execute(args []string) error { client := http.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 3</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/</link>
-      <pubDate>Mon, 14 Oct 2019 06:00:00 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-3/</guid>
-      <description>Must accept a file arguement of urls to test For this feature I have added a file argument to the CLI configuration, with the value being passed to a new Application object. The CLI reposnsibility is to deal with the CLI context and not the logic of the application.
-RootCmd.PersistentFlags().StringVarP(&amp;amp;urlFile, &amp;#34;urls&amp;#34;, &amp;#34;u&amp;#34;, &amp;#34;&amp;#34;, &amp;#34;The urls file to use&amp;#34;) I have called the new struct Surge which will now be the main entry point of the actual application logic.</description>
-    </item>
     
     <item>
       <title>Enumerating Github Repositories in Bash</title>
@@ -128,35 +21,6 @@ RootCmd.PersistentFlags().StringVarP(&amp;amp;urlFile, &amp;#34;urls&amp;#34;, &
       <guid>https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/</guid>
       <description>I needed to get a list of all the repositories for a specific Github Organisation. Github limits the page size which you have use which ruled out a single call with a large value. I was also writing this routine in bash and less is more as they say.
 My approach was very simplistic in that it simply tried an incrementing value for next page and if the response was empty then the end of the list had been reached.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 2</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/</link>
-      <pubDate>Mon, 10 Jun 2019 20:22:20 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-2/</guid>
-      <description>Must be a CLI I chose the Cobra https://github.com/spf13/cobra package for the CLI since it is used by a lot of popular applications and it made things a lot simpler than working with the raw command line arguments, including testing etc&amp;hellip; In my opinion this is one of those decisions better made early so more focus can be given to the actual requirements. To get started I literally installed the generator and package with two separate go gets as per the documentation which created a default root command which I could build on.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go Part 1</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-1/</link>
-      <pubDate>Sun, 09 Jun 2019 14:43:46 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go-part-1/</guid>
-      <description>Must be continually built and published to github releases supporting Windows, Linux and Mac The first part is to create a new repository and setup the continuous integration environment which I will use github and circleci for respectively. I will name the repository and the project surge. https://github.com/reaandrew/surge.git
-To begin with I will create a simple hello world application to flush the pipeline with circleci.
-package main import &amp;#34;fmt&amp;#34; func main() { fmt.</description>
-    </item>
-    
-    <item>
-      <title>Creating a Simple Stress Test Tool in Go - Requirements</title>
-      <link>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</link>
-      <pubDate>Sun, 09 Jun 2019 13:43:46 +0000</pubDate>
-      <author>email@andrewrea.co.uk (Andy Rea)</author>
-      <guid>https://reaandrew.github.io/posts/creating-a-simple-stress-test-tool-in-go/</guid>
-      <description>One of the tools that has really stuck in my mind over the years is the siege stress test tool https://github.com/JoeDog/siege. It was really simple to use, give it a list of urls, add some command line arguments including concurrency, time etc&amp;hellip; and it would begin testing those urls with really clear output. At the end of the test run it would print out statistics for the entire test like requests per second, average response time etc&amp;hellip; One thing it also did was make a log of these statistics in tabular form in a file in the home directory which was really useful to compare performance against historical runs.</description>
     </item>
     
     <item>
@@ -175,7 +39,7 @@ The deployment option which I am using is the one where you use one github repos
       <pubDate>Sun, 11 Feb 2018 00:00:00 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/pages/about/</guid>
-      <description> about me </description>
+      <description>about me </description>
     </item>
     
     <item>
@@ -184,7 +48,7 @@ The deployment option which I am using is the one where you use one github repos
       <pubDate>Sun, 11 Feb 2018 00:00:00 +0000</pubDate>
       <author>email@andrewrea.co.uk (Andy Rea)</author>
       <guid>https://reaandrew.github.io/shorts/abc/</guid>
-      <description> about me </description>
+      <description>about me </description>
     </item>
     
   </channel>
