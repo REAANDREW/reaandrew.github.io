@@ -32,8 +32,8 @@ pageSize<span style="color:#f92672">=</span><span style="color:#ae81ff">100</spa
 
 <span style="color:#66d9ef">while</span> true
 <span style="color:#66d9ef">do</span>
-  curl -H <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Authorization: Bearer </span>$GITHUB_TOKEN<span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">https://api.github.com/orgs/</span>$ORG<span style="color:#e6db74">/repos?per_page=</span>$pageSize<span style="color:#e6db74">&amp;page=</span>$page<span style="color:#e6db74">&#34;</span> | jq -er <span style="color:#e6db74">&#39;.[] | .clone_url&#39;</span> &gt;&gt; repos.txt <span style="color:#f92672">||</span> break
-  <span style="color:#f92672">(</span><span style="color:#f92672">(</span>page++<span style="color:#f92672">)</span><span style="color:#f92672">)</span>
+  curl -H <span style="color:#e6db74">&#34;Authorization: Bearer </span>$GITHUB_TOKEN<span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;https://api.github.com/orgs/</span>$ORG<span style="color:#e6db74">/repos?per_page=</span>$pageSize<span style="color:#e6db74">&amp;page=</span>$page<span style="color:#e6db74">&#34;</span> | jq -er <span style="color:#e6db74">&#39;.[] | .clone_url&#39;</span> &gt;&gt; repos.txt <span style="color:#f92672">||</span> break
+  <span style="color:#f92672">((</span>page++<span style="color:#f92672">))</span>
 <span style="color:#66d9ef">done</span>
 </code></pre></div>
     </div>
@@ -44,7 +44,9 @@ pageSize<span style="color:#f92672">=</span><span style="color:#ae81ff">100</spa
     </div>
     <div class="col">
       
-      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      <a href="https://reaandrew.github.io/posts/local-pgql-docker-util/"  class="btn btn-light">
+        Local PGSQL Docker Utility <span class="badge badge-light">2 mins reading time</span>
+      </a>
       
     </div>
   </div>

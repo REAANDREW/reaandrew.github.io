@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html><head>
+    <title>Local PGSQL Docker Utility</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Mansalva|Titillium+Web&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/page.css" >
+    <script src="/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+        <div class="container">
+          <div class="row border-bottom mb-5">
+            <div class="col2" id="header">
+              <h1><a class="text-dark" href="/">Andy Rea</a></h1>
+              <p>My thoughts on programming, scripting and cyber security</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="content">
+  <div class="row">
+    <div class="col">
+      <h1>Local PGSQL Docker Utility</h1>
+      <h2>Wed, Jun 17, 2020</h2>
+      <p>This is a small set of bash scripts to make it really simple to start, stop, connect and load scripts into a local postgres database.</p>
+<p>This uses docker, it sets up trust with the host so it can connect using the psql client. It also sets up a local volume in the directory which you launch the utility from which allows the container instances themselves to be transient but still giving you control to destroy the state when required.</p>
+<h2 id="here-is-how-to-use-it">Here is how to use it</h2>
+<ol>
+<li>Start the instance</li>
+</ol>
+<pre><code>spd start
+</code></pre><ol start="2">
+<li>Connect to the DB instance</li>
+</ol>
+<pre><code>spd connect
+</code></pre><ol start="3">
+<li>Execute an SQL file against the running database</li>
+</ol>
+<pre><code>spd load fubar.sql
+</code></pre><ol start="4">
+<li>Stop the DB instance</li>
+</ol>
+<pre><code>spd stop
+</code></pre><ol start="5">
+<li>Stop the DB instance and destroy the DB state</li>
+</ol>
+<pre><code>spd destroy
+</code></pre><h2 id="here-is-the-script">Here is the script</h2>
+<pre><code>export DEFAULT_PG_PASSWORD=mysecretpassword
+
+run(){
+  mkdir -p pg_data
+  docker run -d -p 5432:5432 \
+    --name my-postgres \
+    -e POSTGRES_PASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; \
+    -e POSTGRES_HOST_AUTH_METHOD=trust \
+    -e PGDATA=/var/lib/postgresql/data/pgdata \
+    -v `pwd`/pg_data:/var/lib/postgresql/data \
+    postgres &gt; /dev/null
+}
+
+teardown(){
+  docker kill my-postgres 2&gt; /dev/null || :
+  docker rm my-postgres 2&gt; /dev/null || :
+}
+
+setup_db_instance(){
+  {
+    teardown &gt; /dev/null
+  }
+  run
+}
+
+spd(){
+  case &quot;$1&quot; in
+    start)
+      setup_db_instance
+      ;;
+    stop)
+      teardown &gt; /dev/null
+      ;;
+    destroy)
+      teardown &gt; /dev/null
+      sudo rm -rf ./pg_data
+      ;;
+    connect)
+      {
+      PGPASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; psql -h $(docker inspect my-postgres 2&gt; /dev/null \
+        | jq -r '.[] | .NetworkSettings.IPAddress') -U postgres 2&gt; /dev/null
+      } || {
+        echo &quot;DB is not running. run 'spd start'&quot;
+      }
+      ;;
+    load)
+      {
+        PGPASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; psql -h $(docker inspect my-postgres  2&gt; /dev/null\
+          | jq -r '.[] | .NetworkSettings.IPAddress') -U postgres -f &quot;$2&quot; 2&gt; /dev/null
+      } || {
+        echo &quot;DB is not running. run 'spd start'&quot;
+      }
+      ;;
+  esac
+}
+</code></pre>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    
+        <a href="https://reaandrew.github.io/posts/enumerating-github-repositories-in-bash/"  class="btn btn-light">
+          Enumerating Github Repositories in Bash <span class="badge badge-light">1 mins reading time</span>
+        </a>
+    
+    </div>
+    <div class="col">
+      
+      <span class="badge badge-secondary">That's the last of the posts for now</span>
+      
+    </div>
+  </div>
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" id="footer">Copyright 2019 Andy Rea
+</div>
+          </div>
+        </div>
+    </body>
+</html>
