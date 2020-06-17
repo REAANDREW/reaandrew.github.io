@@ -29,80 +29,80 @@
 <ol>
 <li>Start the instance</li>
 </ol>
-<pre><code>spd start
-</code></pre><ol start="2">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">spd start
+</code></pre></div><ol start="2">
 <li>Connect to the DB instance</li>
 </ol>
-<pre><code>spd connect
-</code></pre><ol start="3">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">spd connect
+</code></pre></div><ol start="3">
 <li>Execute an SQL file against the running database</li>
 </ol>
-<pre><code>spd load fubar.sql
-</code></pre><ol start="4">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">spd load fubar.sql
+</code></pre></div><ol start="4">
 <li>Stop the DB instance</li>
 </ol>
-<pre><code>spd stop
-</code></pre><ol start="5">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">spd stop
+</code></pre></div><ol start="5">
 <li>Stop the DB instance and destroy the DB state</li>
 </ol>
-<pre><code>spd destroy
-</code></pre><h2 id="here-is-the-script">Here is the script</h2>
-<pre><code>export DEFAULT_PG_PASSWORD=mysecretpassword
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">spd destroy
+</code></pre></div><h2 id="here-is-the-script">Here is the script</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">export DEFAULT_PG_PASSWORD<span style="color:#f92672">=</span>mysecretpassword
 
-run(){
+run<span style="color:#f92672">(){</span>
   mkdir -p pg_data
-  docker run -d -p 5432:5432 \
-    --name my-postgres \
-    -e POSTGRES_PASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; \
-    -e POSTGRES_HOST_AUTH_METHOD=trust \
-    -e PGDATA=/var/lib/postgresql/data/pgdata \
-    -v `pwd`/pg_data:/var/lib/postgresql/data \
-    postgres &gt; /dev/null
-}
+  docker run -d -p 5432:5432 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --name my-postgres <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -e POSTGRES_PASSWORD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$DEFAULT_PG_PASSWORD<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -e POSTGRES_HOST_AUTH_METHOD<span style="color:#f92672">=</span>trust <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -e PGDATA<span style="color:#f92672">=</span>/var/lib/postgresql/data/pgdata <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -v <span style="color:#e6db74">`</span>pwd<span style="color:#e6db74">`</span>/pg_data:/var/lib/postgresql/data <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    postgres &gt; /dev/null
+<span style="color:#f92672">}</span>
 
-teardown(){
-  docker kill my-postgres 2&gt; /dev/null || :
-  docker rm my-postgres 2&gt; /dev/null || :
-}
+teardown<span style="color:#f92672">(){</span>
+  docker kill my-postgres 2&gt; /dev/null <span style="color:#f92672">||</span> :
+  docker rm my-postgres 2&gt; /dev/null <span style="color:#f92672">||</span> :
+<span style="color:#f92672">}</span>
 
-setup_db_instance(){
-  {
+setup_db_instance<span style="color:#f92672">(){</span>
+  <span style="color:#f92672">{</span>
     teardown &gt; /dev/null
-  }
+  <span style="color:#f92672">}</span>
   run
-}
+<span style="color:#f92672">}</span>
 
-spd(){
-  case &quot;$1&quot; in
-    start)
+spd<span style="color:#f92672">(){</span>
+  <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> in
+    start<span style="color:#f92672">)</span>
       setup_db_instance
       ;;
-    stop)
+    stop<span style="color:#f92672">)</span>
       teardown &gt; /dev/null
       ;;
-    destroy)
+    destroy<span style="color:#f92672">)</span>
       teardown &gt; /dev/null
       sudo rm -rf ./pg_data
       ;;
-    connect)
-      {
-      PGPASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; psql -h $(docker inspect my-postgres 2&gt; /dev/null \
-        | jq -r '.[] | .NetworkSettings.IPAddress') -U postgres 2&gt; /dev/null
-      } || {
-        echo &quot;DB is not running. run 'spd start'&quot;
-      }
+    connect<span style="color:#f92672">)</span>
+      <span style="color:#f92672">{</span>
+      PGPASSWORD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$DEFAULT_PG_PASSWORD<span style="color:#e6db74">&#34;</span> psql -h <span style="color:#66d9ef">$(</span>docker inspect my-postgres 2&gt; /dev/null <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>        | jq -r <span style="color:#e6db74">&#39;.[] | .NetworkSettings.IPAddress&#39;</span><span style="color:#66d9ef">)</span> -U postgres 2&gt; /dev/null
+      <span style="color:#f92672">}</span> <span style="color:#f92672">||</span> <span style="color:#f92672">{</span>
+        echo <span style="color:#e6db74">&#34;DB is not running. run &#39;spd start&#39;&#34;</span>
+      <span style="color:#f92672">}</span>
       ;;
-    load)
-      {
-        PGPASSWORD=&quot;$DEFAULT_PG_PASSWORD&quot; psql -h $(docker inspect my-postgres  2&gt; /dev/null\
-          | jq -r '.[] | .NetworkSettings.IPAddress') -U postgres -f &quot;$2&quot; 2&gt; /dev/null
-      } || {
-        echo &quot;DB is not running. run 'spd start'&quot;
-      }
+    load<span style="color:#f92672">)</span>
+      <span style="color:#f92672">{</span>
+        PGPASSWORD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$DEFAULT_PG_PASSWORD<span style="color:#e6db74">&#34;</span> psql -h <span style="color:#66d9ef">$(</span>docker inspect my-postgres  2&gt; /dev/null<span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>          | jq -r <span style="color:#e6db74">&#39;.[] | .NetworkSettings.IPAddress&#39;</span><span style="color:#66d9ef">)</span> -U postgres -f <span style="color:#e6db74">&#34;</span>$2<span style="color:#e6db74">&#34;</span> 2&gt; /dev/null
+      <span style="color:#f92672">}</span> <span style="color:#f92672">||</span> <span style="color:#f92672">{</span>
+        echo <span style="color:#e6db74">&#34;DB is not running. run &#39;spd start&#39;&#34;</span>
+      <span style="color:#f92672">}</span>
       ;;
-  esac
-}
-</code></pre>
+  <span style="color:#66d9ef">esac</span>
+<span style="color:#f92672">}</span>
+</code></pre></div>
     </div>
   </div>
   <div class="row">
