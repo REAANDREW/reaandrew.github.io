@@ -29,6 +29,7 @@
       <h1>Small script to clean up your AMIs</h1>
       <h2>Tue, Nov 10, 2020</h2>
       <p>On a little side project I am working on I am creating my own AMIs using Packer and AWS Launch Templates.  Whilst developing the AMI you start to get a build up of previous versions along with their associated snapshot.  I wanted to have some script which I could run which would remove each AMI and related snapshot prior to me building the next iteration.</p>
+<p><strong>WARNING: This script will deregister AMIs even when they are currently used in running ec2 instances.  A second iteration of this could be to exclude AMIs currently in use with instances (regardless of instance state)</strong></p>
 <p>Using the AWS CLI you need to execute the following two CLI commands to completely clear up:</p>
 <ul>
 <li>aws ec2 deregister-image</li>
