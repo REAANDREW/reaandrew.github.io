@@ -49,32 +49,32 @@
 </ol>
 <p>I have also put <code>export AWS_PAGER=&quot;&quot;</code> to avoid the need for key presses to page through the results of each AWS command.</p>
 <p>Couple of example usages are:</p>
-<pre><code># This will find any AMIs whose name contains 'fubar'.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># This will find any AMIs whose name contains &#39;fubar&#39;.</span>
 ./clean-up-amis.sh fubar
 
-# This will delete ALL AMIs apart from the most recent since no filter is supplied.
+<span style="color:#75715e"># This will delete ALL AMIs apart from the most recent since no filter is supplied.</span>
 ./clean-up-amis.sh 
-</code></pre><h2 id="the-script">The script!</h2>
-<pre><code>#!/usr/bin/env bash
-export AWS_PAGER=&quot;&quot;
-aws ec2 describe-images --owners self | \
-  jq -r --arg image_name &quot;$1&quot; '[.Images[] | 
-                              select(.Name | contains($image_name))] | 
-                              sort_by(.CreationDate) | 
-                              reverse | .[1:] | .[] | 
-                              [.ImageId, (.BlockDeviceMappings[] | select(.DeviceName == &quot;/dev/sda1&quot;).Ebs.SnapshotId), .Name] | 
-                              @tsv' | \
-  while IFS=$'\t' read -r image snapshot name; do
-    echo &quot;Cleaning up AMI $name&quot;
-    printf &quot;De-registering image $image..&quot;
-    aws ec2 deregister-image --image-id &quot;$image&quot;
-    echo &quot;Done&quot;
-    printf &quot;Deleting snapshot $snapshot..&quot;
-    aws ec2 delete-snapshot --snapshot-id &quot;$snapshot&quot;
-    echo &quot;Done&quot;
+</code></pre></div><h2 id="the-script">The script!</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#!/usr/bin/env bash
+</span><span style="color:#75715e"></span>export AWS_PAGER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+aws ec2 describe-images --owners self | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  jq -r --arg image_name <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#39;[.Images[] | 
+</span><span style="color:#e6db74">                              select(.Name | contains($image_name))] | 
+</span><span style="color:#e6db74">                              sort_by(.CreationDate) | 
+</span><span style="color:#e6db74">                              reverse | .[1:] | .[] | 
+</span><span style="color:#e6db74">                              [.ImageId, (.BlockDeviceMappings[] | select(.DeviceName == &#34;/dev/sda1&#34;).Ebs.SnapshotId), .Name] | 
+</span><span style="color:#e6db74">                              @tsv&#39;</span> | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  <span style="color:#66d9ef">while</span> IFS<span style="color:#f92672">=</span><span style="color:#e6db74">$&#39;\t&#39;</span> read -r image snapshot name; <span style="color:#66d9ef">do</span>
+    echo <span style="color:#e6db74">&#34;Cleaning up AMI </span>$name<span style="color:#e6db74">&#34;</span>
+    printf <span style="color:#e6db74">&#34;De-registering image </span>$image<span style="color:#e6db74">..&#34;</span>
+    aws ec2 deregister-image --image-id <span style="color:#e6db74">&#34;</span>$image<span style="color:#e6db74">&#34;</span>
+    echo <span style="color:#e6db74">&#34;Done&#34;</span>
+    printf <span style="color:#e6db74">&#34;Deleting snapshot </span>$snapshot<span style="color:#e6db74">..&#34;</span>
+    aws ec2 delete-snapshot --snapshot-id <span style="color:#e6db74">&#34;</span>$snapshot<span style="color:#e6db74">&#34;</span>
+    echo <span style="color:#e6db74">&#34;Done&#34;</span>
     echo
-  done
-</code></pre>
+  <span style="color:#66d9ef">done</span>
+</code></pre></div>
     </div>
   </div>
   <div class="row">
